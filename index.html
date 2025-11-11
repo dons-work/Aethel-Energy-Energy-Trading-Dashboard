@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aethel Energy - AI Enhanced Energy Trading Dashboard</title>
+    <title>Aethel Energy Energy Trading Dashboard</title>
     <!-- Google Font: Urbanist -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -13,6 +13,8 @@
     <!-- Chart.js Date Adapter & Luxon -->
     <script src="https://cdn.jsdelivr.net/npm/luxon@^2.0.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@^1.0.0"></script>
+    <!-- Tailwind CSS CDN - ADDED FOR NEW HEADER STYLING -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* --- Global Styles & Variables (Aethel Energy Branding) --- */
         :root {
@@ -20,9 +22,8 @@
             --aethel-secondary-green: #3D9970; /* A more sophisticated green */
             --aethel-light-accent: #C4E0D2; /* Soft, complementary light green */
             --light-gray-border: #e0e4e7; /* Softer border */
-            --text-color: #333;
-            --background-color: #ffffff;
-            --header-height: 70px;
+            /* Removed --text-color and --background-color as Tailwind classes on body will handle this */
+            --header-height: 80px; /* Adjusted for new header height */
             --footer-height: 50px;
             --ai-color: #8C47A1; /* A slightly softer, modern purple for AI */
             --bullish-color: #2E8B57; /* Darker green */
@@ -42,65 +43,44 @@
             padding: 0;
         }
 
-        html, body {
-            height: 100%;
+        html {
+            /* Removed background-color and color as Tailwind classes on body will handle this */
             font-family: 'Urbanist', sans-serif;
-            background-color: #f8fbfd; /* Very light, cool background */
-            color: var(--text-color);
             line-height: 1.6;
+            height: 100%; /* Ensure html takes full height */
+        }
+
+        body {
+            min-height: 100vh; /* Ensure body minimum height for sticky footer */
+            /* Tailwind classes bg-slate-50 and text-slate-800 are added directly in the body tag. */
+            /* Removed old background-color and color from here */
+            display: flex; /* Make body a flex container to push footer down */
+            flex-direction: column; /* Stack children vertically */
         }
 
         /* --- Layout --- */
         .dashboard-container {
+            /* Removed min-height: 100vh as body handles it, and flex-direction column on body now. */
+            flex-grow: 1; /* Allow main content to grow */
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
         }
 
-        .dashboard-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 25px;
-            height: var(--header-height);
-            background-color: var(--background-color);
-            border-bottom: 2px solid var(--light-gray-border);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.08); /* Slightly more pronounced shadow */
-            position: relative;
-        }
-
-        .header-left {
-             display: flex;
-             align-items: center;
-        }
-
-        .aethel-logo { /* Renamed for Aethel */
-            max-height: 10%;
-            width: 10%;
-            margin-right: 20px;
-            /* Placeholder for a new logo if one is available */
-            /* If you generate a logo, update the src in the HTML and these styles */
-        }
-
-        .dashboard-title {
-            color: var(--aethel-primary-blue);
-            font-size: 1.6em;
-            font-weight: 600;
-        }
+        /* Removed .dashboard-header styles as the new header is fully Tailwind styled */
+        /* Removed .header-left */
+        /* Removed .aethel-logo */
+        /* Removed .dashboard-title */
 
         .dashboard-main {
             flex-grow: 1;
             padding: 25px;
-            background-color: #f8fbfd;
+            background-color: #f8fbfd; /* Still use this specific light background for main content sections */
             padding-bottom: calc(var(--footer-height) + 25px);
         }
 
         /* --- NEW: Intro Text Styling --- */
         .intro-text {
-            background-color: var(--background-color);
+            background-color: var(--background-color); /* This will be white from global --background-color */
             padding: 20px;
             margin-bottom: 25px;
             border: 1px solid var(--light-gray-border);
@@ -126,7 +106,7 @@
 
         /* --- Section Styling --- */
         .dashboard-section {
-            background-color: var(--background-color);
+            background-color: var(--background-color); /* This will be white from global --background-color */
             padding: 20px;
             margin-bottom: 25px;
             border: 1px solid var(--light-gray-border);
@@ -268,73 +248,7 @@
         .sources-list a:hover { color: var(--aethel-secondary-green); /* Updated color */ text-decoration: underline; }
         #data-sources p { font-size: 0.9em; font-style: italic; color: #555; margin-bottom: 15px; padding: 8px; background-color: #f2f5f7; /* Matching summary/table stripe */ border-left: 3px solid var(--aethel-light-accent); /* Updated color */ border-radius: 0 4px 4px 0; }
 
-        /* --- NEW: Hamburger Menu Styles --- */
-        .hamburger-menu {
-            background: none;
-            border: none;
-            cursor: pointer;
-            padding: 10px;
-            margin-left: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .hamburger-icon {
-            font-size: 1.8em;
-            color: var(--aethel-primary-blue); /* Updated color */
-            line-height: 1;
-        }
-        .hamburger-menu:hover .hamburger-icon {
-            color: var(--aethel-secondary-green); /* Updated color */
-        }
-
-        .dropdown-content {
-            display: none;
-            position: absolute;
-            right: 15px;
-            top: calc(var(--header-height) - 10px);
-            background-color: white;
-            min-width: 280px;
-            box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.15);
-            z-index: 1001;
-            border: 1px solid var(--light-gray-border);
-            border-radius: 6px;
-            padding: 15px 20px;
-        }
-        .dropdown-content.show {
-            display: block;
-        }
-        .dropdown-content p, .dropdown-content a {
-            color: var(--text-color);
-            padding: 6px 0;
-            text-decoration: none;
-            display: block;
-            font-size: 0.9em;
-            line-height: 1.5;
-        }
-         .dropdown-content p.contact-name {
-            font-weight: 700;
-            font-size: 1em;
-            color: var(--aethel-primary-blue); /* Updated color */
-            margin-bottom: 5px;
-        }
-         .dropdown-content p.contact-title {
-            font-size: 0.85em;
-            color: #555;
-            margin-bottom: 10px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--light-gray-border);
-        }
-        .dropdown-content a:hover {
-            color: var(--aethel-secondary-green); /* Updated color */
-        }
-        .dropdown-content a strong {
-             color: var(--aethel-primary-blue); /* Updated color */
-             font-weight: 500;
-             margin-right: 5px;
-             display: inline-block;
-             min-width: 60px;
-        }
+        /* Removed old hamburger menu and dropdown styles as new header uses Tailwind and new JS */
 
 
         /* --- Responsive Adjustments --- */
@@ -346,7 +260,7 @@
         }
 
         @media (max-width: 768px) {
-            .dashboard-title { font-size: 1.4em; }
+            /* .dashboard-title { font-size: 1.4em; } Removed */
             .data-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
             .country-grid { grid-template-columns: 1fr; }
             .key-stats-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
@@ -361,14 +275,14 @@
              .chatbot-button { bottom: calc(var(--footer-height) + 15px); right: 15px; width: 45px; height: 45px; font-size: 1.6em; }
              .chatbot-popup { width: calc(100% - 30px); right: 15px; bottom: calc(var(--footer-height) + 70px); max-height: 350px;}
              .live-chart-container { height: 200px; }
-             .hamburger-icon { font-size: 1.6em; }
-             .dropdown-content { right: 10px; min-width: 250px; }
+             /* .hamburger-icon { font-size: 1.6em; } Removed */
+             /* .dropdown-content { right: 10px; min-width: 250px; } Removed */
              .intro-text { font-size: 0.9em; padding: 15px; }
         }
          @media (max-width: 480px) {
-             .dashboard-header { padding: 5px 15px; height: 60px; }
-             .dashboard-title { font-size: 1.1em; }
-             .aethel-logo { max-height: 70%; margin-right: 10px; } /* Renamed */
+             /* .dashboard-header { padding: 5px 15px; height: 60px; } Removed */
+             /* .dashboard-title { font-size: 1.1em; } Removed */
+             /* .aethel-logo { max-height: 70%; margin-right: 10px; } Removed */
              .dashboard-main { padding: 15px; padding-bottom: calc(var(--footer-height) + 15px); }
              .data-grid, .key-stats-grid { grid-template-columns: 1fr 1fr; }
              .data-card h4, .key-stat-card h4 { font-size: 0.8em; min-height: 2.5em; }
@@ -383,34 +297,61 @@
              .news-headline { font-size: 1em; }
              .chatbot-popup { width: calc(100% - 20px); right: 10px; bottom: calc(var(--footer-height) + 65px); }
              .chatbot-button { width: 40px; height: 40px; font-size: 1.5em; }
-             .hamburger-icon { font-size: 1.5em; }
-             .dropdown-content { right: 5px; min-width: calc(100% - 20px); top: calc(var(--header-height) - 5px); }
+             /* .hamburger-icon { font-size: 1.5em; } Removed */
+             /* .dropdown-content { right: 5px; min-width: calc(100% - 20px); top: calc(var(--header-height) - 5px); } Removed */
              .intro-text { font-size: 0.85em; padding: 10px; }
          }
 
     </style>
 </head>
-<body>
+<body class="bg-slate-50 text-slate-800">
     <div class="dashboard-container">
-        <header class="dashboard-header">
-            <div class="header-left">
-                <!-- Placeholder for Aethel Energy Logo -->
-                <!-- I can generate a logo for Aethel Energy if you'd like! -->
-                <img src="https://images2.imgbox.com/23/8a/Lq0o4crJ_o.png" alt="Aethel Energy Logo" class="aethel-logo">
-                <h1 class="dashboard-title">Aethel Energy Energy Trading Dashboard</h1>
-            </div>
-            <div class="header-right">
-                <button class="hamburger-menu" id="hamburger-button" aria-label="Toggle contact menu">
-                    <span class="hamburger-icon">☰</span>
-                </button>
-                <div class="dropdown-content" id="dropdown-menu">
-                     <p class="contact-name">Don Spampinato</p>
-                     <p class="contact-title">Digital Transformation Solutions Consultant</p>
-                     <a href="mailto:donspampinato@gmail.com"><strong>Email:</strong> donspampinato@gmail.com</a>
-                     <a href="tel:+447983352068"><strong>Phone:</strong> +44 (0) 7983 352 068</a>
-                     <a href="http://www.donspampinato.co.uk" target="_blank" rel="noopener noreferrer"><strong>Website:</strong> www.donspampinato.co.uk</a>
-                     <a href="https://www.linkedin.com/in/donspampinato/" target="_blank" rel="noopener noreferrer"><strong>LinkedIn:</strong> in/donspampinato</a>
-                     <a href="https://bit.ly/40IR7zh" target="_blank" rel="noopener noreferrer"><strong>Portfolio:</strong> bit.ly/40IR7zh</a>
+        <!-- NEW HEADER SECTION - Integrated Tailwind CSS -->
+        <header class="sticky top-0 bg-white/80 backdrop-blur-lg border-b border-slate-200 z-40">
+            <div class="w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center justify-between h-20">
+                    <div class="flex items-center space-x-4">
+                        <img src="https://images2.imgbox.com/23/8a/Lq0o4crJ_o.png" alt="DS-logo" class="h-11 w-11 rounded-lg object-cover" />
+                        <div>
+                            <h1 class="text-xl font-bold text-sky-800">Aethel Energy Energy Trading Dashboard</h1>
+                            <p class="text-xs text-slate-500">Visualising Market Intelligence and Strategic Insight Across Europe’s Energy Sector</p>
+                        </div>
+                    </div>
+                    <div class="relative" id="dropdownContainer">
+                        <button id="hamburgerBtn" class="p-2 rounded-full hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors" aria-label="Toggle user menu" aria-expanded="false">
+                            <svg class="w-7 h-7 text-sky-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
+                            </svg>
+                        </button>
+                        <div id="dropdownMenu" class="hidden absolute top-full right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-slate-200 p-5 z-50 text-sm">
+                            <div class="border-b border-slate-200 pb-3 mb-3">
+                                <p class="font-bold text-slate-800">Don Spampinato</p>
+                                <p class="text-slate-500">Digital Transformation Solutions Consultant</p>
+                            </div>
+                            <div class="space-y-3">
+                                <a href="mailto:donspampinato@gmail.com" target="_blank" rel="noopener noreferrer" class="flex items-start text-sky-700 hover:text-sky-600 group transition-colors duration-200">
+                                    <strong class="w-16 font-semibold text-slate-600 group-hover:text-slate-800">Email:</strong>
+                                    <span class="flex-1 group-hover:underline">donspampinato@gmail.com</span>
+                                </a>
+                                <a href="tel:+447983352068" target="_blank" rel="noopener noreferrer" class="flex items-start text-sky-700 hover:text-sky-600 group transition-colors duration-200">
+                                    <strong class="w-16 font-semibold text-slate-600 group-hover:text-slate-800">Phone:</strong>
+                                    <span class="flex-1 group-hover:underline">+44 (0) 7983 352 068</span>
+                                </a>
+                                <a href="http://www.donspampinato.co.uk" target="_blank" rel="noopener noreferrer" class="flex items-start text-sky-700 hover:text-sky-600 group transition-colors duration-200">
+                                    <strong class="w-16 font-semibold text-slate-600 group-hover:text-slate-800">Website:</strong>
+                                    <span class="flex-1 group-hover:underline">www.donspampinato.co.uk</span>
+                                </a>
+                                <a href="https://www.linkedin.com/in/donspampinato/" target="_blank" rel="noopener noreferrer" class="flex items-start text-sky-700 hover:text-sky-600 group transition-colors duration-200">
+                                    <strong class="w-16 font-semibold text-slate-600 group-hover:text-slate-800">LinkedIn:</strong>
+                                    <span class="flex-1 group-hover:underline">in/donspampinato</span>
+                                </a>
+                                <a href="https://bit.ly/40IR7zh" target="_blank" rel="noopener noreferrer" class="flex items-start text-sky-700 hover:text-sky-600 group transition-colors duration-200">
+                                    <strong class="w-16 font-semibold text-slate-600 group-hover:text-slate-800">Portfolio:</strong>
+                                    <span class="flex-1 group-hover:underline">bit.ly/40IR7zh</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </header>
@@ -558,9 +499,9 @@
                 lightGreen: getComputedStyle(document.documentElement).getPropertyValue('--aethel-light-accent').trim(),
                 aiPurple: getComputedStyle(document.documentElement).getPropertyValue('--ai-color').trim(),
             };
-            const commonChartOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'top', labels: { font: { family: 'Urbanist', size: 12 }, usePointStyle: true } }, tooltip: { mode: 'index', intersect: false, bodyFont: { family: 'Urbanist' }, titleFont: { family: 'Urbanist', weight: 'bold' }, backgroundColor: 'rgba(0, 0, 0, 0.8)', padding: 10, cornerRadius: 4, }, }, scales: { x: { type: 'time', adapters: { date: { locale: 'en-GB' } }, time: { tooltipFormat: 'DD MMM YYYY', displayFormats: { day: 'MMM DD' } }, ticks: { font: { family: 'Urbanist' }, maxRotation: 0, autoSkipPadding: 15 }, grid: { display: false } }, y: { ticks: { font: { family: 'Urbanist' } }, grid: { color: '#e0e0e0', borderDash: [3, 4] } } }, elements: { point: { radius: 3, hoverRadius: 6, backgroundColor: chartColors.blue }, line: { tension: 0.1 } }, interaction: { mode: 'index', intersect: false, }, };
+            const commonChartOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'top', labels: { font: { family: 'Urbanist', size: 12 }, usePointStyle: true } }, tooltip: { mode: 'index', intersect: false, bodyFont: { family: 'Urbanist' }, titleFont: { family: 'Urbanist', weight: 'bold' }, backgroundColor: 'rgba(0, 0, 0, 0.8)', padding: 10, cornerRadius: 4, }, }, scales: { x: { type: 'time', adapters: { date: { locale: 'en-GB' } }, time: { tooltipFormat: 'DD MMM YYYY', displayFormats: { day: 'MMM DD' } }, ticks: { font: { family: 'Urbanist' }, maxRotation: 0, autoSkipPadding: 15 }, grid: { display: false } }, y: { ticks: { font: { family: 'Urbanist' }, color: 'rgb(51, 51, 51)' }, grid: { color: '#e0e0e0', borderDash: [3, 4] } } }, elements: { point: { radius: 3, hoverRadius: 6, backgroundColor: chartColors.blue }, line: { tension: 0.1 } }, interaction: { mode: 'index', intersect: false, }, };
             const countryChartOptions = { ...commonChartOptions, plugins: { ...commonChartOptions.plugins, legend: { display: false } }, scales: { x: { ...commonChartOptions.scales.x, time: { unit: 'day', displayFormats: { day: 'DD' } }, ticks: { maxTicksLimit: 8 } }, y: { ...commonChartOptions.scales.y, ticks: { maxTicksLimit: 5 } } }, elements: { point: { radius: 2, hoverRadius: 5, backgroundColor: chartColors.green }, line: { tension: 0.1 } } };
-            const liveTickerChartOptions = { responsive: true, maintainAspectRatio: false, scales: { x: { type: 'time', adapters: { date: { locale: 'en-GB' } }, time: { unit: 'second', tooltipFormat: 'HH:mm:ss', displayFormats: { second: 'HH:mm:ss' } }, ticks: { source: 'auto', maxRotation: 0, autoSkipPadding: 20, maxTicksLimit: 7 }, grid: { display: false } }, y: { ticks: { font: { family: 'Urbanist' }, maxTicksLimit: 6 }, grid: { color: '#e0e0e0', borderDash: [3, 4] } } }, plugins: { legend: { display: false }, tooltip: { mode: 'nearest', intersect: false, bodyFont: { family: 'Urbanist' }, titleFont: { family: 'Urbanist', weight: 'bold' }, backgroundColor: 'rgba(0, 0, 0, 0.8)', padding: 8, cornerRadius: 4, callbacks: { title: function(context) { const label = context[0]?.label; return label ? luxon.DateTime.fromMillis(parseInt(label)).toFormat('HH:mm:ss') : ''; }, label: function(context) { let label = context.dataset.label || ''; if (label) { label += ': '; } if (context.parsed.y !== null) { label += `€${context.parsed.y.toFixed(2)}`; } return label; } } } }, elements: { point: { radius: 0, hoverRadius: 0 }, line: { tension: 0.1, borderWidth: 1.5 } }, animation: false, interaction: { mode: 'index', intersect: false }, };
+            const liveTickerChartOptions = { responsive: true, maintainAspectRatio: false, scales: { x: { type: 'time', adapters: { date: { locale: 'en-GB' } }, time: { unit: 'second', tooltipFormat: 'HH:mm:ss', displayFormats: { second: 'HH:mm:ss' } }, ticks: { source: 'auto', maxRotation: 0, autoSkipPadding: 20, maxTicksLimit: 7 }, grid: { display: false } }, y: { ticks: { font: { family: 'Urbanist' }, maxTicksLimit: 6, color: 'rgb(51, 51, 51)' }, grid: { color: '#e0e0e0', borderDash: [3, 4] } } }, plugins: { legend: { display: false }, tooltip: { mode: 'nearest', intersect: false, bodyFont: { family: 'Urbanist' }, titleFont: { family: 'Urbanist', weight: 'bold' }, backgroundColor: 'rgba(0, 0, 0, 0.8)', padding: 8, cornerRadius: 4, callbacks: { title: function(context) { const label = context[0]?.label; return label ? luxon.DateTime.fromMillis(parseInt(label)).toFormat('HH:mm:ss') : ''; }, label: function(context) { let label = context.dataset.label || ''; if (label) { label += ': '; } if (context.parsed.y !== null) { label += `€${context.parsed.y.toFixed(2)}`; } return label; } } } }, elements: { point: { radius: 0, hoverRadius: 0 }, line: { tension: 0.1, borderWidth: 1.5 } }, animation: false, interaction: { mode: 'index', intersect: false }, };
             function generateTimeSeriesData(baseValue, numPoints, volatility) { const data = []; const labels = []; let currentValue = baseValue; const startDate = luxon.DateTime.now().minus({ days: numPoints - 1 }); for (let i = 0; i < numPoints; i++) { labels.push(startDate.plus({ days: i }).toMillis()); data.push(parseFloat(currentValue.toFixed(2))); currentValue += (Math.random() - 0.48) * volatility; currentValue = Math.max(currentValue, baseValue * 0.5); } return { labels, data }; }
             const europeGasCtx = document.getElementById('europeGasChart')?.getContext('2d');
             if (europeGasCtx) { const { labels: gasLabels, data: gasData } = generateTimeSeriesData(30, 30, 1.5); europeGasChartInstance = new Chart(europeGasCtx, { type: 'line', data: { labels: gasLabels, datasets: [{ label: 'TTF Gas Price (€/MWh)', data: gasData, borderColor: chartColors.blue, backgroundColor: 'rgba(10, 107, 155, 0.1)', borderWidth: 2, fill: true, pointBackgroundColor: chartColors.blue }] }, options: { ...commonChartOptions, scales: { ...commonChartOptions.scales, x: { ...commonChartOptions.scales.x, time: { unit: 'day' } } }, plugins: { ...commonChartOptions.plugins, title: { display: true, text: 'European Gas Price Trend (TTF - Past 30 Days)', font: { family: 'Urbanist', size: 14, weight: 'bold' }, color: chartColors.blue }, tooltip: { ...commonChartOptions.plugins.tooltip, callbacks: { footer: function(tooltipItems) { const value = tooltipItems[0]?.parsed?.y; if (value) { if (value > 35) return '🧠 AI: Price spike likely linked to supply news.'; if (value < 25) return '🧠 AI: Lower prices possibly due to high storage/low demand.'; } return '🧠 AI: Trend within expected range.'; } } } } } }); }
@@ -582,20 +523,24 @@
             const chatbotPopup = document.getElementById('chatbot-popup'); const toggleChatbotButton = document.getElementById('toggle-chatbot'); const closeChatbotButton = document.getElementById('close-chatbot'); const chatbotBody = document.getElementById('chatbot-body'); const chatbotInput = document.getElementById('chatbot-input'); const chatbotSendButton = document.getElementById('chatbot-send'); function toggleChatbot() { if (chatbotPopup.style.display === 'flex') { chatbotPopup.style.display = 'none'; toggleChatbotButton.setAttribute('aria-expanded', 'false'); } else { chatbotPopup.style.display = 'flex'; toggleChatbotButton.setAttribute('aria-expanded', 'true'); chatbotInput.focus(); } } function addChatMessage(message, type = 'ai') { const messageDiv = document.createElement('div'); messageDiv.classList.add('chat-message', type === 'user' ? 'user-message' : 'ai-message'); const sanitizedMessage = message.replace(/</g, "<").replace(/>/g, ">"); messageDiv.innerHTML = sanitizedMessage; chatbotBody.appendChild(messageDiv); chatbotBody.scrollTop = chatbotBody.scrollHeight; } function handleUserInput() { const userInput = chatbotInput.value.trim(); if (userInput === '') return; addChatMessage(userInput, 'user'); chatbotInput.value = ''; let aiResponse = "I'm processing that. Ask me about TTF price, storage levels, volatility, or recent market drivers (like bullish or bearish factors) for a more specific analysis."; const lowerInput = userInput.toLowerCase(); const currentPriceText = liveTtfElement ? liveTtfElement.textContent : 'N/A'; const currentPriceNum = lastValues[liveTtfElement?.id] ?? NaN; const prevPriceNum = lastValues['previous_ttf'] ?? currentPriceNum; let priceDirection = 'stable'; if (!isNaN(currentPriceNum) && !isNaN(prevPriceNum)){ if (currentPriceNum > prevPriceNum + 0.05) priceDirection = 'rising slightly'; else if (currentPriceNum < prevPriceNum - 0.05) priceDirection = 'falling slightly'; } const currentStorageText = euStorageElement ? euStorageElement.textContent : 'N/A'; const currentVolText = liveVolatilityElement ? liveVolatilityElement.textContent : 'N/A'; const currentSentimentText = liveSentimentElement ? liveSentimentElement.textContent : 'Neutral'; if (lowerInput.includes('ttf') || lowerInput.includes('price') || lowerInput.includes('gas')) { aiResponse = `The current TTF gas price is simulated at ${currentPriceText}. Based on recent simulated data, the trend is ${priceDirection}. Key factors influencing this recently include weather patterns and LNG arrivals. My overall market sentiment is ${currentSentimentText}.`; } else if (lowerInput.includes('storage')) { aiResponse = `Simulated EU gas storage is currently at ${currentStorageText}. This level is generally considered healthy for this period, providing some buffer against price shocks. According to my simulation, this currently exerts a slight bearish pressure.`; } else if (lowerInput.includes('volatility') || lowerInput.includes('risk')) { aiResponse = `Simulated market volatility (1-day TTF) is around ${currentVolText}. This suggests moderate risk levels in the simulation. However, simulated geopolitical events or significant weather forecast changes could increase volatility.`; } else if (lowerInput.includes('bullish') || lowerInput.includes('rising') || lowerInput.includes('up')) { aiResponse = `Potential bullish drivers in the simulation could include colder weather forecasts, unexpected supply disruptions (like simulated pipeline issues), or lower renewable energy output forecasts. The AI's current overall sentiment is '${currentSentimentText}'.`; } else if (lowerInput.includes('bearish') || lowerInput.includes('falling') || lowerInput.includes('down')) { aiResponse = `Potential bearish drivers simulated include high storage levels (like the current ${currentStorageText}), strong renewable generation forecasts, mild weather, or signs of weaker economic demand. The AI's current overall sentiment is '${currentSentimentText}'.`; } else if (lowerInput.includes('hello') || lowerInput.includes('hi') || lowerInput.includes('help')) { aiResponse = "Hello! I can provide simulated insights on TTF price trends, storage levels, volatility, and potential market drivers. What are you interested in?"; } else if (lowerInput.includes('news') || lowerInput.includes('headlines')) { aiResponse = "You can find simulated recent news headlines in the 'Energy Market News Feed' section of the dashboard. They cover topics like gas prices, renewables, policy, and weather."; } if (!isNaN(currentPriceNum)) { lastValues['previous_ttf'] = currentPriceNum; } setTimeout(() => { addChatMessage(aiResponse, 'ai'); }, 600 + Math.random() * 400); }
             if (toggleChatbotButton) toggleChatbotButton.addEventListener('click', toggleChatbot); if (closeChatbotButton) closeChatbotButton.addEventListener('click', toggleChatbot); if (chatbotSendButton) chatbotSendButton.addEventListener('click', handleUserInput); if (chatbotInput) chatbotInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); handleUserInput(); } });
 
-            // --- NEW: Hamburger Menu Toggle Logic ---
-            const hamburgerButton = document.getElementById('hamburger-button');
-            const dropdownMenu = document.getElementById('dropdown-menu');
+            // --- NEW: Hamburger Menu Toggle Logic for new header ---
+            const hamburgerBtn = document.getElementById('hamburgerBtn');
+            const dropdownMenu = document.getElementById('dropdownMenu');
 
-            if (hamburgerButton && dropdownMenu) {
-                hamburgerButton.addEventListener('click', (event) => {
-                    event.stopPropagation();
-                    dropdownMenu.classList.toggle('show');
+            if (hamburgerBtn && dropdownMenu) {
+                hamburgerBtn.addEventListener('click', (event) => {
+                    event.stopPropagation(); // Prevent the document click listener from immediately closing it
+                    dropdownMenu.classList.toggle('hidden');
+                    const isExpanded = dropdownMenu.classList.contains('hidden') ? 'false' : 'true';
+                    hamburgerBtn.setAttribute('aria-expanded', isExpanded);
                 });
 
                 window.addEventListener('click', (event) => {
-                    if (!hamburgerButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
-                        if (dropdownMenu.classList.contains('show')) {
-                            dropdownMenu.classList.remove('show');
+                    // Close the dropdown if clicking outside of the button and the menu
+                    if (!hamburgerBtn.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                        if (!dropdownMenu.classList.contains('hidden')) {
+                            dropdownMenu.classList.add('hidden');
+                            hamburgerBtn.setAttribute('aria-expanded', 'false');
                         }
                     }
                 });
