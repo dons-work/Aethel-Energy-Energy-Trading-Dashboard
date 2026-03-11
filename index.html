@@ -3,551 +3,1506 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aethel Energy Energy Trading Dashboard</title>
-    <!-- Google Font: Urbanist -->
+    <title>Aethel Energy — European Trading Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;500;700&display=swap" rel="stylesheet">
-    <!-- Chart.js Library -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Chart.js Date Adapter & Luxon -->
     <script src="https://cdn.jsdelivr.net/npm/luxon@^2.0.0"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon@^1.0.0"></script>
-    <!-- Tailwind CSS CDN - ADDED FOR NEW HEADER STYLING -->
-    <script src="https://cdn.tailwindcss.com"></script>
+
     <style>
-        /* --- Global Styles & Variables (Aethel Energy Branding) --- */
         :root {
-            --aethel-primary-blue: #0A6B9B; /* A deeper, richer blue */
-            --aethel-secondary-green: #3D9970; /* A more sophisticated green */
-            --aethel-light-accent: #C4E0D2; /* Soft, complementary light green */
-            --light-gray-border: #e0e4e7; /* Softer border */
-            /* Removed --text-color and --background-color as Tailwind classes on body will handle this */
-            --header-height: 80px; /* Adjusted for new header height */
-            --footer-height: 50px;
-            --ai-color: #8C47A1; /* A slightly softer, modern purple for AI */
-            --bullish-color: #2E8B57; /* Darker green */
-            --bearish-color: #C23B22; /* Warmer red */
-            --neutral-color: #8D99AE; /* More muted gray */
-            --volatility-color: #FFC300; /* Richer yellow/orange */
-            --policy-color: #4CB0D8; /* Slightly brighter blue for policy */
-            --renewables-color: #1E8449; /* Stronger green for renewables */
-            --geopolitics-color: #E67E22; /* Deeper orange for geopolitics */
-            --storage-color: #2980B9; /* A classic, reliable blue for storage */
-            --gas-price-color: var(--aethel-primary-blue);
+            --bg:          #F7F6F3;
+            --bg-warm:     #EFEFEB;
+            --card:        #FFFFFF;
+            --ink:         #0D0D0D;
+            --ink-mid:     #3A3A3A;
+            --ink-light:   #767676;
+            --ink-faint:   #A8A8A0;
+            --rule:        #D8D8D0;
+            --rule-strong: #B0B0A0;
+            --font-display:'Roboto', 'Helvetica Neue', Arial, sans-serif;
+            --font-body:   'Open Sans', 'Helvetica Neue', Arial, sans-serif;
+            --shadow-sm:   0 1px 2px rgba(0,0,0,0.05);
+            --shadow:      0 2px 8px rgba(0,0,0,0.06), 0 0 0 1px rgba(0,0,0,0.04);
+            --radius:      4px;
+            --max-width:   1180px;
+            --nav-height:  60px;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        html {
-            /* Removed background-color and color as Tailwind classes on body will handle this */
-            font-family: 'Urbanist', sans-serif;
-            line-height: 1.6;
-            height: 100%; /* Ensure html takes full height */
-        }
-
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body { height: 100%; }
         body {
-            min-height: 100vh; /* Ensure body minimum height for sticky footer */
-            /* Tailwind classes bg-slate-50 and text-slate-800 are added directly in the body tag. */
-            /* Removed old background-color and color from here */
-            display: flex; /* Make body a flex container to push footer down */
-            flex-direction: column; /* Stack children vertically */
+            font-family: var(--font-body);
+            background: var(--bg);
+            color: var(--ink);
+            line-height: 1.65;
+            -webkit-font-smoothing: antialiased;
+            font-size: 14px;
+            padding-bottom: 64px;
         }
 
-        /* --- Layout --- */
-        .dashboard-container {
-            /* Removed min-height: 100vh as body handles it, and flex-direction column on body now. */
-            flex-grow: 1; /* Allow main content to grow */
+        /* ── NAV ── */
+        .site-nav {
+            background: var(--ink);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            height: var(--nav-height);
+            display: flex;
+            align-items: center;
+        }
+        .site-nav-inner {
+            max-width: var(--max-width);
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+        }
+        .nav-left { display: flex; align-items: center; gap: 14px; }
+        .nav-logo-mark { flex-shrink: 0; }
+        .nav-divider-v { width: 1px; height: 20px; background: rgba(255,255,255,0.15); flex-shrink: 0; }
+        .nav-titles .nav-title {
+            font-family: var(--font-display);
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #FFF;
+            line-height: 1.2;
+        }
+        .nav-titles .nav-sub {
+            font-size: 11px;
+            font-weight: 300;
+            color: rgba(255,255,255,0.4);
+            letter-spacing: 0.04em;
+        }
+        .nav-meta {
+            font-size: 11px;
+            color: rgba(255,255,255,0.35);
+            letter-spacing: 0.03em;
+            font-weight: 300;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        /* Hamburger */
+        .nav-hamburger {
+            background: none;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: var(--radius);
+            width: 32px;
+            height: 32px;
             display: flex;
             flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            padding: 6px;
+            transition: border-color 0.15s;
         }
-
-        /* Removed .dashboard-header styles as the new header is fully Tailwind styled */
-        /* Removed .header-left */
-        /* Removed .aethel-logo */
-        /* Removed .dashboard-title */
-
-        .dashboard-main {
-            flex-grow: 1;
-            padding: 25px;
-            background-color: #f8fbfd; /* Still use this specific light background for main content sections */
-            padding-bottom: calc(var(--footer-height) + 25px);
+        .nav-hamburger:hover { border-color: rgba(255,255,255,0.5); }
+        .nav-hamburger span {
+            display: block;
+            width: 14px;
+            height: 1px;
+            background: rgba(255,255,255,0.7);
         }
-
-        /* --- NEW: Intro Text Styling --- */
-        .intro-text {
-            background-color: var(--background-color); /* This will be white from global --background-color */
-            padding: 20px;
-            margin-bottom: 25px;
-            border: 1px solid var(--light-gray-border);
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.07); /* Slightly stronger shadow */
-            font-size: 0.95em;
-            line-height: 1.7;
+        .nav-dropdown {
+            position: absolute;
+            top: calc(var(--nav-height) + 6px);
+            right: 32px;
+            width: 300px;
+            background: var(--card);
+            border: 1px solid var(--rule);
+            border-radius: var(--radius);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            z-index: 200;
+            display: none;
+            padding: 20px 24px;
         }
-        .intro-text p {
-            margin-bottom: 1em;
+        .nav-dropdown.open { display: block; }
+        .nav-dropdown-name {
+            font-family: var(--font-display);
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 2px;
         }
-        .intro-text p:last-child {
-            margin-bottom: 0;
+        .nav-dropdown-role {
+            font-size: 11px;
+            color: var(--ink-faint);
+            margin-bottom: 16px;
+            padding-bottom: 14px;
+            border-bottom: 1px solid var(--rule);
         }
-        .intro-text strong {
-            color: var(--aethel-secondary-green); /* Updated color */
-        }
-        .intro-text em {
-            color: var(--bearish-color);
-            font-style: normal;
-            font-weight: 500;
-        }
-
-        /* --- Section Styling --- */
-        .dashboard-section {
-            background-color: var(--background-color); /* This will be white from global --background-color */
-            padding: 20px;
-            margin-bottom: 25px;
-            border: 1px solid var(--light-gray-border);
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.07); /* Slightly stronger shadow */
-            transition: box-shadow 0.3s ease;
+        .nav-dropdown-links { display: flex; flex-direction: column; gap: 10px; }
+        .nav-dropdown-links a {
             display: flex;
-            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+            font-size: 12px;
+            color: var(--ink-mid);
+            text-decoration: none;
+            transition: color 0.15s;
         }
-        .dashboard-section:hover {
-             box-shadow: 0 6px 12px rgba(0,0,0,0.1);
-        }
-
-        .section-title {
-            color: var(--aethel-primary-blue); /* Updated color */
-            font-size: 1.5em;
+        .nav-dropdown-links a:hover { color: var(--ink); }
+        .nav-dropdown-links a strong {
+            font-size: 10px;
             font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+            width: 52px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        /* ── PAGE WRAPPER ── */
+        .page-wrap {
+            max-width: var(--max-width);
+            margin: 0 auto;
+            padding: 32px 32px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* ── PANELS ── */
+        .panel {
+            background: var(--card);
+            border: 1px solid var(--rule);
+            border-radius: var(--radius);
+            padding: 24px 28px;
+            box-shadow: var(--shadow-sm);
+        }
+        .panel-title {
+            font-family: var(--font-display);
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--ink-light);
+            padding-bottom: 16px;
             margin-bottom: 20px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid var(--light-gray-border);
+            border-bottom: 1px solid var(--rule);
             display: flex;
             align-items: center;
             gap: 10px;
         }
-
-        /* --- Data Cards / Grids --- */
-        .data-grid, .key-stats-grid, .country-grid, .ai-suggestions-grid, .news-grid { display: grid; gap: 15px; margin-bottom: 20px; }
-        .data-grid { grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); }
-        .key-stats-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
-        .country-grid { grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; }
-        .ai-suggestions-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-        .news-grid { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; }
-        .data-card, .country-card, .key-stat-card, .ai-summary-card, .news-card { border: 1px solid var(--light-gray-border); border-radius: 8px; padding: 15px; background-color: #fff; text-align: center; position: relative; transition: transform 0.2s ease, box-shadow 0.2s ease; display: flex; flex-direction: column; }
-        .data-card:hover, .country-card:hover, .key-stat-card:hover, .ai-summary-card:hover, .news-card:hover { transform: translateY(-3px); box-shadow: 0 5px 10px rgba(0,0,0,0.1); }
-        .data-card h4, .country-card h4, .key-stat-card h4, .ai-summary-card h4 { font-size: 0.9em; color: #555; margin-bottom: 8px; font-weight: 500; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 5px; min-height: 2.2em; }
-        .data-card h4 .icon, .key-stat-card h4 .icon, .ai-summary-card h4 .icon { font-size: 1.1em; color: var(--aethel-secondary-green); /* Updated color */ }
-        .key-stat-card h4 .icon { color: var(--aethel-primary-blue); /* Updated color */ }
-        .data-card .value, .country-card .value, .key-stat-card .value, .ai-summary-card .value { font-size: 1.4em; font-weight: 700; color: var(--aethel-secondary-green); /* Updated color */ transition: color 0.3s ease, background-color 0.3s ease; padding: 5px; border-radius: 4px; display: inline-block; min-width: 60px; }
-        .country-card .value { color: var(--aethel-primary-blue); /* Updated color */ }
-        .key-stat-card .value { color: var(--aethel-primary-blue); /* Updated color */ font-size: 1.6em; }
-        .ai-summary-card .value { color: var(--ai-color); font-size: 1.5em; }
-        .price-up { background: linear-gradient(to top right, rgba(61, 153, 112, 0.15), rgba(255,255,255,0)); } /* Updated color */
-        .price-down { background: linear-gradient(to bottom right, rgba(194, 59, 34, 0.15), rgba(255,255,255,0)); } /* Updated color */
-        .price-neutral { background: none; }
-        .value-updating { background-color: rgba(196, 224, 210, 0.3) !important; transition: background-color 0.1s ease; } /* Updated color */
-        .country-card h3 { color: var(--aethel-primary-blue); margin-bottom: 15px; text-align: left; font-size: 1.2em; }
-        .country-data-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-
-        /* --- Charts --- */
-        .chart-container-wrapper { flex-grow: 1; min-height: 250px; display: flex; flex-direction: column; }
-        .chart-container { position: relative; width: 100%; margin-top: 15px; border: 1px solid var(--light-gray-border); padding: 15px; border-radius: 8px; margin-bottom: 10px; background-color: #fcfdfe; /* Slightly off-white for charts */ flex-grow: 1; }
-        .long-term-chart-container { height: 300px; flex-grow: 0; }
-        .live-chart-container { height: 250px; flex-grow: 1; }
-        .country-chart-container { position: relative; height: 160px; width: 100%; margin-top: 15px; margin-bottom: 10px; }
-
-        /* --- Tables --- */
-        .data-table { width: 100%; border-collapse: collapse; margin-top: 15px; margin-bottom: 10px; }
-        .data-table th, .data-table td { border: 1px solid var(--light-gray-border); padding: 10px 12px; text-align: left; vertical-align: middle; font-size: 0.95em; }
-        .data-table thead th { background-color: var(--aethel-primary-blue); /* Updated color */ color: white; font-weight: 500; position: sticky; top: var(--header-height); z-index: 10; }
-        .data-table tbody tr:nth-child(even) { background-color: #f2f5f7; /* Slightly darker stripe */ }
-        .data-table tbody tr:hover { background-color: var(--aethel-light-accent); /* Updated color */ cursor: pointer; }
-        .data-table a { color: var(--aethel-primary-blue); /* Updated color */ text-decoration: none; font-weight: 500; }
-        .data-table a:hover { text-decoration: underline; color: var(--aethel-secondary-green); /* Updated color */ }
-
-        /* --- Summary Notes & Timestamps --- */
-        .summary-note { font-size: 0.85em; font-style: italic; color: #555; margin-top: auto; padding: 10px; background-color: #f2f5f7; /* Matching table stripe */ border-left: 4px solid var(--aethel-light-accent); /* Updated color */ border-radius: 0 4px 4px 0; }
-        .data-timestamp { font-size: 0.8em; color: #777; text-align: right; margin-bottom: 15px; }
-
-        /* --- AI Section Enhancements --- */
-        .ai-badge { background-color: var(--ai-color); color: white; font-size: 0.6em; padding: 3px 6px; border-radius: 4px; vertical-align: middle; margin-left: 5px; }
-        #ai-section .section-title::before { content: '🧠'; font-size: 1.1em; margin-right: 5px; }
-        .ai-controls { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 20px; padding: 15px; background-color: #f2f5f7; /* Matching summary/table stripe */ border-radius: 6px; border: 1px solid var(--light-gray-border); }
-        .ai-control-group { display: flex; flex-direction: column; gap: 5px; min-width: 150px; }
-        .ai-control-group label { font-size: 0.85em; font-weight: 500; color: #555; }
-        .ai-control-group select, .ai-control-group input, .ai-control-group button { padding: 5px 8px; border: 1px solid var(--light-gray-border); border-radius: 4px; font-family: 'Urbanist', sans-serif; font-size: 0.9em; }
-        .ai-control-group button { background-color: var(--aethel-secondary-green); /* Updated color */ color: white; cursor: pointer; transition: background-color 0.2s ease; }
-        .ai-control-group button:hover { background-color: #317f5b; /* Darker hover */ }
-        .ai-suggestions-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; }
-        .ai-summary-card { text-align: left; border-left: 5px solid var(--ai-color); cursor: help; }
-        .ai-summary-card h4 { justify-content: flex-start; color: var(--aethel-primary-blue); /* Updated color */ margin-bottom: 5px; }
-        .ai-summary-card .value { margin-bottom: 10px; display: block; text-align: left; }
-        .ai-summary-card p { font-size: 0.95em; color: #444; margin-bottom: 10px; flex-grow: 1; }
-        .ai-tags, .news-tags { display: flex; flex-wrap: wrap; gap: 5px; margin-top: auto; padding-top: 10px; }
-        .ai-tag, .news-tag { font-size: 0.75em; padding: 3px 8px; border-radius: 10px; font-weight: 500; color: white; border: 1px solid transparent; cursor: default; }
-        .tag-bullish { background-color: var(--bullish-color); }
-        .tag-bearish { background-color: var(--bearish-color); }
-        .tag-neutral { background-color: var(--neutral-color); }
-        .tag-volatility { background-color: var(--volatility-color); color: #333; border-color: #d1a500;} /* Adjust border for readability */
-        .tag-storage { background-color: var(--storage-color); }
-        .tag-weather { background-color: #3498DB; /* Brighter blue for weather */ }
-        .tag-geopolitics { background-color: var(--geopolitics-color); }
-        .tag-policy { background-color: var(--policy-color); color: #333; border-color: #3a97bd; }
-        .tag-renewables { background-color: var(--renewables-color); }
-        .tag-gas-price { background-color: var(--gas-price-color); }
-        .tooltip { position: absolute; bottom: 105%; left: 50%; transform: translateX(-50%); background-color: rgba(0, 0, 0, 0.85); /* Slightly darker tooltip */ color: white; padding: 8px 12px; border-radius: 4px; font-size: 0.8em; white-space: nowrap; opacity: 0; visibility: hidden; transition: opacity 0.2s ease, visibility 0.2s ease; z-index: 100; pointer-events: none; }
-        .ai-summary-card:hover .tooltip { opacity: 1; visibility: visible; }
-        .confidence-meter-container { display: flex; align-items: center; gap: 8px; margin-bottom: 15px; background-color: #f2f5f7; padding: 8px 12px; border-radius: 5px; }
-        .confidence-meter-container label { font-size: 0.9em; font-weight: 500; color: #555; }
-        .confidence-meter { height: 10px; width: 100px; background-color: #e9eff2; /* Softer light gray */ border-radius: 5px; overflow: hidden; border: 1px solid var(--light-gray-border); }
-        .confidence-meter-bar { height: 100%; background-color: var(--aethel-secondary-green); /* Updated color */ width: 75%; border-radius: 5px 0 0 5px; transition: width 0.5s ease, background-color 0.5s ease; }
-        .confidence-meter-value { font-size: 0.9em; font-weight: 700; color: var(--aethel-primary-blue); /* Updated color */ }
-        .ai-label { font-size: 0.8em; font-weight: 500; padding: 2px 5px; border-radius: 3px; margin-right: 5px; color: white; vertical-align: middle; }
-        .ai-label-simulated { background-color: var(--neutral-color); }
-        .ai-label-powered { background-color: var(--aethel-secondary-green); /* Updated color */ }
-        .ai-label-recommendation { background-color: var(--ai-color); }
-
-        /* --- News Section Specific Styles --- */
-        .news-card { text-align: left; border-left: 5px solid var(--aethel-secondary-green); /* Updated color */ }
-        .news-headline { font-size: 1.1em; font-weight: 700; margin-bottom: 8px; }
-        .news-headline a { text-decoration: none; color: var(--aethel-primary-blue); /* Updated color */ transition: color 0.2s ease; }
-        .news-headline a:hover { color: var(--aethel-secondary-green); /* Updated color */ }
-        .news-meta { font-size: 0.8em; color: #777; margin-bottom: 15px; }
-
-        /* --- Chatbot Simulation --- */
-        .chatbot-button { position: fixed; bottom: calc(var(--footer-height) + 20px); right: 25px; background-color: var(--aethel-primary-blue); /* Updated color */ color: white; border: none; border-radius: 50%; width: 50px; height: 50px; font-size: 1.8em; cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.2); z-index: 1001; transition: transform 0.2s ease, background-color 0.2s ease; display: flex; align-items: center; justify-content: center; }
-        .chatbot-button:hover { background-color: #074e6f; /* Darker hover */ transform: scale(1.05); }
-        .chatbot-popup { display: none; position: fixed; bottom: calc(var(--footer-height) + 80px); right: 25px; width: 300px; max-height: 400px; background-color: white; border: 1px solid var(--light-gray-border); border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.15); z-index: 1000; overflow: hidden; flex-direction: column; }
-        .chatbot-header { background-color: var(--aethel-primary-blue); /* Updated color */ color: white; padding: 10px 15px; font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
-        .chatbot-close { background: none; border: none; color: white; font-size: 1.2em; cursor: pointer; }
-        .chatbot-body { padding: 15px; overflow-y: auto; flex-grow: 1; font-size: 0.9em; line-height: 1.5; }
-        .chat-message { margin-bottom: 12px; max-width: 85%; padding: 8px 12px; border-radius: 10px; word-wrap: break-word; }
-        .user-message { background-color: #eef2f5; /* Lighter gray */ color: #333; margin-left: auto; border-bottom-right-radius: 0; }
-        .ai-message { background-color: var(--aethel-light-accent); /* Updated color */ color: #333; margin-right: auto; border-bottom-left-radius: 0; }
-        .chatbot-input-area { display: flex; border-top: 1px solid var(--light-gray-border); padding: 10px; }
-        .chatbot-input { flex-grow: 1; padding: 8px; border: 1px solid var(--light-gray-border); border-radius: 4px 0 0 4px; font-size: 0.9em; outline: none; }
-        .chatbot-send { padding: 8px 12px; border: none; background-color: var(--aethel-secondary-green); /* Updated color */ color: white; cursor: pointer; border-radius: 0 4px 4px 0; font-size: 0.9em; }
-        .chatbot-send:hover { background-color: #317f5b; /* Darker hover */ }
-
-        /* --- Footer --- */
-        .dashboard-footer { height: var(--footer-height); padding: 15px 25px; background-color: var(--aethel-primary-blue); /* Updated color */ color: #eaf1f5; /* Slightly lighter white for text */ text-align: center; font-size: 0.85em; border-top: 1px solid #074e6f; /* Darker border */ position: fixed; bottom: 0; left: 0; width: 100%; z-index: 1000; }
-        .dashboard-footer p { margin: 0; }
-        #last-updated-time { font-weight: 500; color: #fff; }
-
-        /* --- Sources List Styling --- */
-        .sources-list { list-style: none; padding-left: 0; font-size: 0.9em; columns: 2; -webkit-columns: 2; -moz-columns: 2; gap: 20px; }
-        .sources-list li { margin-bottom: 8px; padding-left: 15px; position: relative; }
-        .sources-list li::before { content: "•"; color: var(--aethel-secondary-green); /* Updated color */ font-weight: bold; display: inline-block; width: 1em; margin-left: -1.2em; position: absolute; left: 5px; }
-        .sources-list a { color: var(--aethel-primary-blue); /* Updated color */ text-decoration: none; font-weight: 500; }
-        .sources-list a:hover { color: var(--aethel-secondary-green); /* Updated color */ text-decoration: underline; }
-        #data-sources p { font-size: 0.9em; font-style: italic; color: #555; margin-bottom: 15px; padding: 8px; background-color: #f2f5f7; /* Matching summary/table stripe */ border-left: 3px solid var(--aethel-light-accent); /* Updated color */ border-radius: 0 4px 4px 0; }
-
-        /* Removed old hamburger menu and dropdown styles as new header uses Tailwind and new JS */
-
-
-        /* --- Responsive Adjustments --- */
-        @media (max-width: 992px) {
-             .country-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
-             .ai-suggestions-grid { grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); }
-             .news-grid { grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); }
-             .sources-list { columns: 1; -webkit-columns: 1; -moz-columns: 1; }
+        .panel-title-num {
+            width: 20px;
+            height: 20px;
+            border: 1px solid var(--rule-strong);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: var(--ink-faint);
+            flex-shrink: 0;
         }
 
-        @media (max-width: 768px) {
-            /* .dashboard-title { font-size: 1.4em; } Removed */
-            .data-grid { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+        /* ── INTRO ── */
+        .intro-panel {
+            background: var(--ink);
+            border-radius: var(--radius);
+            padding: 24px 32px;
+            position: relative;
+            overflow: hidden;
+        }
+        .intro-panel::before {
+            content: '\201C';
+            position: absolute;
+            top: -24px; right: 20px;
+            font-family: var(--font-display);
+            font-size: 140px;
+            color: rgba(255,255,255,0.04);
+            line-height: 1;
+            pointer-events: none;
+        }
+        .intro-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: rgba(255,255,255,0.35);
+            margin-bottom: 12px;
+        }
+        .intro-body {
+            font-size: 13px;
+            color: rgba(255,255,255,0.7);
+            font-weight: 300;
+            line-height: 1.8;
+        }
+        .intro-body strong { color: rgba(255,255,255,0.95); font-weight: 600; }
+        .intro-disclaimer {
+            margin-top: 12px;
+            font-size: 11px;
+            color: rgba(255,255,255,0.35);
+            font-weight: 300;
+            font-style: italic;
+        }
+
+        /* ── KPI GRID ── */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--rule);
+            border: 1px solid var(--rule);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+        .kpi-card {
+            background: var(--card);
+            padding: 20px 22px;
+        }
+        .kpi-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--ink-light);
+            margin-bottom: 8px;
+        }
+        .kpi-value {
+            font-family: var(--font-display);
+            font-size: 26px;
+            font-weight: 300;
+            color: var(--ink);
+            line-height: 1;
+            margin-bottom: 6px;
+            letter-spacing: -0.01em;
+            transition: color 0.3s;
+        }
+        .kpi-desc {
+            font-size: 11px;
+            color: var(--ink-faint);
+            font-weight: 300;
+        }
+        .kpi-up .kpi-value   { color: #1a6b35; }
+        .kpi-down .kpi-value { color: #8B2020; }
+
+        /* ── LIVE TICKER ── */
+        .ticker-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+            margin-bottom: 16px;
+        }
+        .ticker-dot {
+            width: 6px; height: 6px;
+            border-radius: 50%;
+            background: var(--ink);
+            animation: blink 1.4s ease-in-out infinite;
+        }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+        /* ── DATA GRIDS ── */
+        .data-grid-6 {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 1px;
+            background: var(--rule);
+            border: 1px solid var(--rule);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+        .data-cell {
+            background: var(--card);
+            padding: 16px 18px;
+        }
+        .data-cell-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--ink-light);
+            margin-bottom: 6px;
+        }
+        .data-cell-value {
+            font-family: var(--font-display);
+            font-size: 18px;
+            font-weight: 400;
+            color: var(--ink);
+            letter-spacing: -0.01em;
+        }
+
+        /* ── COUNTRY GRID ── */
+        .country-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+        .country-panel {
+            background: var(--card);
+            border: 1px solid var(--rule);
+            border-radius: var(--radius);
+            padding: 20px 24px;
+            box-shadow: var(--shadow-sm);
+        }
+        .country-flag-title {
+            font-family: var(--font-display);
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--ink);
+            margin-bottom: 14px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid var(--rule);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .country-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1px;
+            background: var(--rule);
+            border: 1px solid var(--rule);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-bottom: 14px;
+        }
+        .country-stat {
+            background: var(--bg);
+            padding: 10px 12px;
+        }
+        .country-stat-label {
+            font-size: 9px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--ink-faint);
+            margin-bottom: 4px;
+        }
+        .country-stat-value {
+            font-family: var(--font-display);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--ink);
+        }
+
+        /* ── AI SECTION ── */
+        .ai-insights-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+        .ai-card {
+            background: var(--bg);
+            border: 1px solid var(--rule);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            position: relative;
+        }
+        .ai-card-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--ink-light);
+            margin-bottom: 8px;
+        }
+        .ai-card-value {
+            font-family: var(--font-display);
+            font-size: 22px;
+            font-weight: 300;
+            color: var(--ink);
+            margin-bottom: 8px;
+        }
+        .ai-card-body {
+            font-size: 12px;
+            color: var(--ink-mid);
+            font-weight: 300;
+            line-height: 1.65;
+            margin-bottom: 12px;
+        }
+        .tag-row { display: flex; flex-wrap: wrap; gap: 6px; }
+        .tag {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            padding: 3px 8px;
+            border-radius: 2px;
+            border: 1px solid var(--rule-strong);
+            color: var(--ink-mid);
+            background: var(--card);
+        }
+        .tag-invert {
+            background: var(--ink);
+            color: #fff;
+            border-color: var(--ink);
+        }
+        .tag-faint {
+            color: var(--ink-faint);
+            border-color: var(--rule);
+        }
+
+        /* AI Controls */
+        .ai-controls {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+            padding: 16px 18px;
+            background: var(--bg);
+            border: 1px solid var(--rule);
+            border-radius: var(--radius);
+            margin-bottom: 20px;
+        }
+        .ai-ctrl-group { display: flex; flex-direction: column; gap: 5px; }
+        .ai-ctrl-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--ink-light);
+        }
+        select, input[type="number"], input[type="text"] {
+            font-family: var(--font-body);
+            font-size: 12px;
+            color: var(--ink);
+            background: var(--card);
+            border: 1px solid var(--rule);
+            border-radius: var(--radius);
+            padding: 7px 10px;
+            outline: none;
+            transition: border-color 0.15s;
+        }
+        select:focus, input:focus { border-color: var(--ink); }
+        .btn {
+            font-family: var(--font-body);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 9px 18px;
+            border-radius: var(--radius);
+            border: none;
+            cursor: pointer;
+            transition: opacity 0.15s, transform 0.12s;
+        }
+        .btn:hover { opacity: 0.82; transform: translateY(-1px); }
+        .btn-primary { background: var(--ink); color: #fff; }
+        .btn-ghost {
+            background: transparent;
+            color: var(--ink);
+            border: 1px solid var(--rule-strong);
+        }
+        .btn-ghost:hover { border-color: var(--ink); background: var(--bg-warm); }
+        #what-if-result {
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--ink);
+            padding-top: 2px;
+        }
+
+        /* Confidence */
+        .confidence-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .confidence-track {
+            width: 90px;
+            height: 4px;
+            background: var(--rule);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        .confidence-fill {
+            height: 100%;
+            background: var(--ink);
+            transition: width 0.5s ease;
+            width: 75%;
+        }
+        .confidence-val {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--ink-mid);
+        }
+
+        /* ── TABLE ── */
+        .table-wrap { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; }
+        th {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--ink-light);
+            padding: 11px 16px;
+            text-align: left;
+            background: var(--bg);
+            border-bottom: 1px solid var(--rule);
+        }
+        td {
+            padding: 11px 16px;
+            font-size: 13px;
+            color: var(--ink-mid);
+            border-bottom: 1px solid var(--rule);
+        }
+        tbody tr:last-child td { border-bottom: none; }
+        tbody tr:hover td { background: var(--bg); }
+        td:first-child { font-weight: 600; color: var(--ink); }
+        td a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--rule-strong); transition: border-color 0.15s; }
+        td a:hover { border-color: var(--ink); }
+
+        /* ── NEWS ── */
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+        }
+        .news-card {
+            background: var(--bg);
+            border: 1px solid var(--rule);
+            border-radius: var(--radius);
+            padding: 16px 18px;
+            display: flex;
+            flex-direction: column;
+        }
+        .news-headline {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--ink);
+            margin-bottom: 6px;
+            line-height: 1.5;
+        }
+        .news-headline a { color: var(--ink); text-decoration: none; }
+        .news-headline a:hover { text-decoration: underline; }
+        .news-meta {
+            font-size: 11px;
+            color: var(--ink-faint);
+            font-weight: 300;
+            margin-bottom: 12px;
+        }
+
+        /* ── SOURCES ── */
+        .sources-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px 20px;
+        }
+        .sources-list li {
+            font-size: 12px;
+            color: var(--ink-mid);
+            display: flex;
+            align-items: flex-start;
+            gap: 6px;
+        }
+        .sources-list li::before {
+            content: '—';
+            color: var(--ink-faint);
+            flex-shrink: 0;
+            font-weight: 300;
+        }
+        .sources-list a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--rule); transition: border-color 0.15s; }
+        .sources-list a:hover { border-color: var(--ink); }
+
+        /* ── SUMMARY NOTE ── */
+        .note {
+            font-size: 11px;
+            color: var(--ink-faint);
+            font-weight: 300;
+            font-style: italic;
+            margin-top: 14px;
+            padding-top: 14px;
+            border-top: 1px solid var(--rule);
+        }
+
+        /* ── CHARTS ── */
+        .chart-wrap {
+            border: 1px solid var(--rule);
+            border-radius: var(--radius);
+            background: var(--bg);
+            padding: 16px;
+            margin-top: 4px;
+        }
+        .chart-wrap canvas { display: block; }
+
+        /* ── CHATBOT ── */
+        .chatbot-btn {
+            position: fixed;
+            bottom: 72px;
+            right: 28px;
+            width: 44px;
+            height: 44px;
+            background: var(--ink);
+            color: #fff;
+            border: none;
+            border-radius: var(--radius);
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 300;
+            transition: opacity 0.15s, transform 0.12s;
+        }
+        .chatbot-btn:hover { opacity: 0.85; transform: translateY(-1px); }
+        .chatbot-popup {
+            display: none;
+            position: fixed;
+            bottom: 124px;
+            right: 28px;
+            width: 300px;
+            max-height: 380px;
+            background: var(--card);
+            border: 1px solid var(--rule);
+            border-radius: var(--radius);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+            z-index: 300;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        .chatbot-header {
+            background: var(--ink);
+            color: #fff;
+            padding: 11px 16px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chatbot-close {
+            background: none;
+            border: none;
+            color: rgba(255,255,255,0.5);
+            cursor: pointer;
+            font-size: 16px;
+            line-height: 1;
+        }
+        .chatbot-close:hover { color: #fff; }
+        .chatbot-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 14px;
+            font-size: 12px;
+            line-height: 1.6;
+        }
+        .chat-msg {
+            margin-bottom: 10px;
+            padding: 9px 12px;
+            border-radius: var(--radius);
+            max-width: 88%;
+            word-wrap: break-word;
+        }
+        .chat-msg.ai  { background: var(--bg); color: var(--ink-mid); margin-right: auto; border: 1px solid var(--rule); }
+        .chat-msg.usr { background: var(--ink); color: #fff; margin-left: auto; }
+        .chatbot-input-row {
+            display: flex;
+            border-top: 1px solid var(--rule);
+        }
+        .chatbot-input {
+            flex: 1;
+            padding: 10px 12px;
+            border: none;
+            border-radius: 0;
+            background: var(--bg);
+            font-size: 12px;
+            outline: none;
+        }
+        .chatbot-send {
+            padding: 10px 14px;
+            background: var(--ink);
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
+        .chatbot-send:hover { opacity: 0.85; }
+
+        /* ── FOOTER ── */
+        .site-footer {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            height: 48px;
+            background: var(--ink);
+            border-top: 1px solid rgba(255,255,255,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            color: rgba(255,255,255,0.3);
+            font-weight: 300;
+            letter-spacing: 0.04em;
+            z-index: 100;
+        }
+        #last-updated-time { color: rgba(255,255,255,0.55); font-weight: 400; }
+
+        /* ── RESPONSIVE ── */
+        @media (max-width: 1000px) {
+            .data-grid-6 { grid-template-columns: repeat(3, 1fr); }
+            .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+            .ai-insights-grid { grid-template-columns: 1fr; }
+            .news-grid { grid-template-columns: repeat(2, 1fr); }
+            .sources-list { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 680px) {
+            .page-wrap { padding: 20px 16px 0; }
             .country-grid { grid-template-columns: 1fr; }
-            .key-stats-grid { grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); }
-            .section-title { font-size: 1.3em; }
-            .data-card .value, .country-card .value, .key-stat-card .value, .ai-summary-card .value { font-size: 1.2em; }
-             .key-stat-card .value { font-size: 1.4em; }
-             .ai-summary-card .value { font-size: 1.3em; }
-            .data-table th, .data-table td { padding: 8px; font-size: 0.9em; }
-            .ai-suggestions-grid, .news-grid { grid-template-columns: 1fr; }
-             .ai-controls { flex-direction: column; }
-             .dashboard-footer { font-size: 0.8em; padding: 10px 15px; }
-             .chatbot-button { bottom: calc(var(--footer-height) + 15px); right: 15px; width: 45px; height: 45px; font-size: 1.6em; }
-             .chatbot-popup { width: calc(100% - 30px); right: 15px; bottom: calc(var(--footer-height) + 70px); max-height: 350px;}
-             .live-chart-container { height: 200px; }
-             /* .hamburger-icon { font-size: 1.6em; } Removed */
-             /* .dropdown-content { right: 10px; min-width: 250px; } Removed */
-             .intro-text { font-size: 0.9em; padding: 15px; }
+            .news-grid { grid-template-columns: 1fr; }
+            .data-grid-6 { grid-template-columns: repeat(2, 1fr); }
+            .kpi-grid { grid-template-columns: 1fr; }
+            .sources-list { grid-template-columns: 1fr; }
+            .site-nav-inner { padding: 0 16px; }
+            .nav-dropdown { right: 16px; width: calc(100vw - 32px); }
         }
-         @media (max-width: 480px) {
-             /* .dashboard-header { padding: 5px 15px; height: 60px; } Removed */
-             /* .dashboard-title { font-size: 1.1em; } Removed */
-             /* .aethel-logo { max-height: 70%; margin-right: 10px; } Removed */
-             .dashboard-main { padding: 15px; padding-bottom: calc(var(--footer-height) + 15px); }
-             .data-grid, .key-stats-grid { grid-template-columns: 1fr 1fr; }
-             .data-card h4, .key-stat-card h4 { font-size: 0.8em; min-height: 2.5em; }
-             .data-card .value, .key-stat-card .value, .ai-summary-card .value { font-size: 1.1em; }
-             .key-stat-card .value { font-size: 1.2em; }
-              .ai-summary-card .value { font-size: 1.15em; }
-             .country-data-grid { grid-template-columns: 1fr; }
-             .long-term-chart-container { height: 220px; padding: 10px; }
-             .live-chart-container { height: 180px; padding: 10px; }
-             .country-chart-container { height: 140px; }
-             .ai-control-group { min-width: 100%; }
-             .news-headline { font-size: 1em; }
-             .chatbot-popup { width: calc(100% - 20px); right: 10px; bottom: calc(var(--footer-height) + 65px); }
-             .chatbot-button { width: 40px; height: 40px; font-size: 1.5em; }
-             /* .hamburger-icon { font-size: 1.5em; } Removed */
-             /* .dropdown-content { right: 5px; min-width: calc(100% - 20px); top: calc(var(--header-height) - 5px); } Removed */
-             .intro-text { font-size: 0.85em; padding: 10px; }
-         }
 
+        /* ── PRINT ── */
+        @media print {
+            body { background: #fff; padding: 0; }
+            .site-nav, .site-footer, .chatbot-btn, .chatbot-popup { display: none !important; }
+            .page-wrap { padding: 0; }
+        }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800">
-    <div class="dashboard-container">
-        <!-- NEW HEADER SECTION - Integrated Tailwind CSS -->
-        <header class="sticky top-0 bg-white/80 backdrop-blur-lg border-b border-slate-200 z-40">
-            <div class="w-full max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex items-center justify-between h-20">
-                    <div class="flex items-center space-x-4">
-                        <img src="https://images2.imgbox.com/23/8a/Lq0o4crJ_o.png" alt="DS-logo" class="h-11 w-11 rounded-lg object-cover" />
-                        <div>
-                            <h1 class="text-xl font-bold text-sky-800">Aethel Energy Energy Trading Dashboard</h1>
-                            <p class="text-xs text-slate-500">Visualising Market Intelligence and Strategic Insight Across Europe’s Energy Sector</p>
-                        </div>
-                    </div>
-                    <div class="relative" id="dropdownContainer">
-                        <button id="hamburgerBtn" class="p-2 rounded-full hover:bg-sky-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-sky-500 transition-colors" aria-label="Toggle user menu" aria-expanded="false">
-                            <svg class="w-7 h-7 text-sky-700" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path>
-                            </svg>
-                        </button>
-                        <div id="dropdownMenu" class="hidden absolute top-full right-0 mt-2 w-80 bg-white rounded-xl shadow-2xl border border-slate-200 p-5 z-50 text-sm">
-                            <div class="border-b border-slate-200 pb-3 mb-3">
-                                <p class="font-bold text-slate-800">Don Spampinato</p>
-                                <p class="text-slate-500">Digital Transformation Solutions Consultant</p>
-                            </div>
-                            <div class="space-y-3">
-                                <a href="mailto:donspampinato@gmail.com" target="_blank" rel="noopener noreferrer" class="flex items-start text-sky-700 hover:text-sky-600 group transition-colors duration-200">
-                                    <strong class="w-16 font-semibold text-slate-600 group-hover:text-slate-800">Email:</strong>
-                                    <span class="flex-1 group-hover:underline">donspampinato@gmail.com</span>
-                                </a>
-                                <a href="tel:+447983352068" target="_blank" rel="noopener noreferrer" class="flex items-start text-sky-700 hover:text-sky-600 group transition-colors duration-200">
-                                    <strong class="w-16 font-semibold text-slate-600 group-hover:text-slate-800">Phone:</strong>
-                                    <span class="flex-1 group-hover:underline">+44 (0) 7983 352 068</span>
-                                </a>
-                                <a href="http://www.donspampinato.co.uk" target="_blank" rel="noopener noreferrer" class="flex items-start text-sky-700 hover:text-sky-600 group transition-colors duration-200">
-                                    <strong class="w-16 font-semibold text-slate-600 group-hover:text-slate-800">Website:</strong>
-                                    <span class="flex-1 group-hover:underline">www.donspampinato.co.uk</span>
-                                </a>
-                                <a href="https://www.linkedin.com/in/donspampinato/" target="_blank" rel="noopener noreferrer" class="flex items-start text-sky-700 hover:text-sky-600 group transition-colors duration-200">
-                                    <strong class="w-16 font-semibold text-slate-600 group-hover:text-slate-800">LinkedIn:</strong>
-                                    <span class="flex-1 group-hover:underline">in/donspampinato</span>
-                                </a>
-                                <a href="https://bit.ly/40IR7zh" target="_blank" rel="noopener noreferrer" class="flex items-start text-sky-700 hover:text-sky-600 group transition-colors duration-200">
-                                    <strong class="w-16 font-semibold text-slate-600 group-hover:text-slate-800">Portfolio:</strong>
-                                    <span class="flex-1 group-hover:underline">bit.ly/40IR7zh</span>
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+<body>
+
+<!-- NAV -->
+<nav class="site-nav">
+    <div class="site-nav-inner" style="position:relative;">
+        <div class="nav-left">
+            <svg class="nav-logo-mark" width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect x="1" y="1" width="26" height="26" stroke="rgba(255,255,255,0.45)" stroke-width="1.5" fill="none"/>
+                <rect x="11" y="11" width="6" height="6" fill="rgba(255,255,255,0.7)"/>
+            </svg>
+            <div class="nav-divider-v"></div>
+            <div class="nav-titles">
+                <div class="nav-title">European Trading Dashboard — Market Intelligence</div>
             </div>
-        </header>
-
-        <main class="dashboard-main">
-
-            <div class="intro-text">
-                 <p>
-                     The <b>Aethel Energy</b> European Energy Trading Dashboard offers a comprehensive demonstration of the key macroeconomic indicators, energy market fundamentals, company data, and simulated real-time price movements relevant to European energy trading. It is designed to provide rapid insights into market trends, monitor major indices, and stay updated with relevant news developments.
-                 </p>
-                 <p>
-                     This dashboard serves as a demonstration of my core skillsets, analytical methods, strategic approach, visual design style, and ability to translate complex data into actionable insights.
-                 </p>
-                 <p>
-                    <b>Please note: All 'live' data and charts presented are simulated for demonstration purposes and do not represent actual real-time market data. Access to real-time financial data requires dedicated backend infrastructure and licensed data providers.</b>
-                 </p>
+        </div>
+        <div class="nav-meta">
+            <span id="nav-timestamp">—</span>
+            <button class="nav-hamburger" id="hamburgerBtn" aria-label="Contact info" aria-expanded="false">
+                <span></span><span></span><span></span>
+            </button>
+        </div>
+        <div class="nav-dropdown" id="dropdownMenu">
+            <div class="nav-dropdown-name">Don Spampinato</div>
+            <div class="nav-dropdown-role">Digital Transformation Solutions Consultant</div>
+            <div class="nav-dropdown-links">
+                <a href="mailto:donspampinato@gmail.com"><strong>Email</strong><span>donspampinato@gmail.com</span></a>
+                <a href="tel:+447983352068"><strong>Phone</strong><span>+44 (0) 7983 352 068</span></a>
+                <a href="http://www.donspampinato.co.uk" target="_blank" rel="noopener noreferrer"><strong>Web</strong><span>www.donspampinato.co.uk</span></a>
+                <a href="https://www.linkedin.com/in/donspampinato/" target="_blank" rel="noopener noreferrer"><strong>LinkedIn</strong><span>in/donspampinato</span></a>
+                <a href="https://bit.ly/40IR7zh" target="_blank" rel="noopener noreferrer"><strong>Portfolio</strong><span>bit.ly/40IR7zh</span></a>
             </div>
+        </div>
+    </div>
+</nav>
 
-            <section class="dashboard-section" id="key-market-stats">
-                <h2 class="section-title">⚡ Key Market Statistics (Simulated Real-Time)</h2>
-                <div class="key-stats-grid">
-                    <div class="key-stat-card"><h4><span class="icon">💶</span>TTF Gas Price (€/MWh)</h4><p class="value price-neutral" id="live-ttf-price">28.75</p></div>
-                    <div class="key-stat-card"><h4><span class="icon">📊</span>Traded Volume (GWh/Day)</h4><p class="value" id="live-volume">1,250</p></div>
-                    <div class="key-stat-card"><h4><span class="icon">📈</span>Market Volatility (TTF % 1D)</h4><p class="value" id="live-volatility">1.85%</p></div>
-                     <div class="key-stat-card"><h4><span class="icon">🧭</span>Market Sentiment</h4><p class="value" id="live-sentiment">Neutral</p></div>
-                </div>
-                 <p class="summary-note">Core indicators showing current TTF gas price, daily traded volume, short-term price volatility, and overall market sentiment (simulated). Updates mimic live ticker behavior.</p>
-            </section>
+<main>
+<div class="page-wrap">
 
-            <section class="dashboard-section" id="live-charts">
-                 <h2 class="section-title">📈 Live Price Simulation (TTF Gas)</h2>
-                 <div class="chart-container-wrapper">
-                     <div class="chart-container live-chart-container">
-                         <canvas id="liveTickerChart"></canvas>
-                     </div>
-                 </div>
-                 <p class="summary-note">Simulated live price ticker for TTF Gas (€/MWh), showing recent updates. Illustrates short-term price fluctuations.</p>
-             </section>
-
-            <section class="dashboard-section" id="europe-macro">
-                <h2 class="section-title">🇪🇺 European Macro & Fundamentals</h2>
-                <div class="data-grid">
-                     <div class="data-card"><h4><span class="icon">📈</span>EU GDP Growth (QoQ)</h4><p class="value" id="eu-gdp">0.3%</p></div>
-                    <div class="data-card"><h4><span class="icon">🔥</span>Eurozone Inflation (YoY)</h4><p class="value" id="eu-inflation">2.4%</p></div>
-                    <div class="data-card"><h4><span class="icon">🏦</span>ECB Interest Rate</h4><p class="value" id="eu-interest-rate">4.50%</p></div>
-                     <div class="data-card"><h4><span class="icon">⛽</span>Gas Storage (EU Avg %)</h4><p class="value" id="eu-storage">65.2%</p></div>
-                    <div class="data-card"><h4><span class="icon">💨</span>Carbon Price (EUA €/t)</h4><p class="value" id="eu-carbon">€65.50</p></div>
-                     <div class="data-card"><h4><span class="icon">🛢️</span>Brent Crude ($/bbl)</h4><p class="value" id="brent-price">$82.10</p></div>
-                </div>
-                <div class="chart-container long-term-chart-container">
-                    <canvas id="europeGasChart"></canvas>
-                </div>
-                <p class="summary-note">Chart shows simulated historical TTF gas price trends <span class="ai-label ai-label-simulated">🔵 AI Hover</span> - hover points for AI annotations. Macro indicators provide context.</p>
-            </section>
-
-            <section class="dashboard-section" id="key-countries">
-                <h2 class="section-title">🌍 Key Country Focus</h2>
-                 <div class="country-grid">
-                    <article class="country-card" id="country-uk"><h3>🇬🇧 United Kingdom</h3><div class="country-data-grid"><div class="data-card"><h4>GDP Growth</h4><p class="value">0.1%</p></div><div class="data-card"><h4>Inflation</h4><p class="value">3.2%</p></div><div class="data-card"><h4>NBP Gas (€/MWh)</h4><p class="value">€28.10</p></div><div class="data-card"><h4>Power Price (£/MWh)</h4><p class="value price-neutral" id="live-uk-power">75.50</p></div></div><div class="country-chart-container"><canvas id="ukPowerChart"></canvas></div><p class="summary-note">UK power prices influenced by NBP gas, wind generation, and interconnectors.</p></article>
-                    <article class="country-card" id="country-fr"><h3>🇫🇷 France</h3><div class="country-data-grid"><div class="data-card"><h4>GDP Growth</h4><p class="value">0.2%</p></div><div class="data-card"><h4>Inflation</h4><p class="value">2.2%</p></div><div class="data-card"><h4>PEG Gas (€/MWh)</h4><p class="value">€28.50</p></div><div class="data-card"><h4>Power Price (€/MWh)</h4><p class="value price-neutral" id="live-fr-power">45.80</p></div></div><div class="country-chart-container"><canvas id="frPowerChart"></canvas></div><p class="summary-note">French power sensitive to nuclear availability. Chart simulates trends.</p></article>
-                    <article class="country-card" id="country-de"><h3>🇩🇪 Germany</h3><div class="country-data-grid"><div class="data-card"><h4>GDP Growth</h4><p class="value">-0.2%</p></div><div class="data-card"><h4>Inflation</h4><p class="value">2.3%</p></div><div class="data-card"><h4>THE Gas (€/MWh)</h4><p class="value">€28.90</p></div><div class="data-card"><h4>Power Price (€/MWh)</h4><p class="value price-neutral" id="live-de-power">60.20</p></div></div><div class="country-chart-container"><canvas id="dePowerChart"></canvas></div><p class="summary-note">German power driven by renewables and conventional generation costs.</p></article>
-                    <article class="country-card" id="country-it"><h3>🇮🇹 Italy</h3><div class="country-data-grid"><div class="data-card"><h4>GDP Growth</h4><p class="value">0.3%</p></div><div class="data-card"><h4>Inflation</h4><p class="value">1.0%</p></div><div class="data-card"><h4>PSV Gas (€/MWh)</h4><p class="value">€29.50</p></div><div class="data-card"><h4>Power Price (€/MWh)</h4><p class="value price-neutral" id="live-it-power">90.10</p></div></div><div class="country-chart-container"><canvas id="itPowerChart"></canvas></div><p class="summary-note">Italian power often premium due to gas reliance. PSV gas is key driver.</p></article>
-                </div>
-            </section>
-
-            <section class="dashboard-section" id="ai-section">
-                 <h2 class="section-title">AI Key Trend Analysis & Insights <span class="ai-badge">Powered by Aethel AI</span></h2>
-                 <p class="data-timestamp">Analysis based on data up to: <span id="ai-timestamp"></span></p>
-                 <div class="ai-controls">
-                     <div class="ai-control-group"><label for="ai-date-range">Analysis Timeframe:</label><select id="ai-date-range"><option value="24h">Last 24h</option><option value="7d" selected>Last 7 days</option><option value="30d">Last 30 days</option></select></div>
-                     <div class="ai-control-group"><label for="ai-confidence">AI Confidence:</label><div class="confidence-meter-container"><div class="confidence-meter"><div class="confidence-meter-bar" id="ai-confidence-bar"></div></div><span class="confidence-meter-value" id="ai-confidence-value">High (85%)</span></div></div>
-                     <div class="ai-control-group"><label>What-If Simulator:</label><input type="number" id="what-if-storage" placeholder="Sim Storage % (e.g., 50)"><button id="what-if-run">Simulate Impact</button></div>
-                     <div class="ai-control-group"><label>Simulation Result:</label><p id="what-if-result" style="font-size: 0.9em; color: var(--aethel-primary-blue); font-weight: 500;">-</p></div>
-                 </div>
-                 <div class="ai-suggestions-grid">
-                    <div class="ai-summary-card"><h4><span class="icon">📈</span>TTF Gas Trend</h4><p class="value price-neutral" id="ai-ttf-trend-value">€28.75</p><p>Current price stable, but slight contango suggests potential short-term rise. Monitor M+1 vs M+2 spread.</p><div class="ai-tags"><span class="ai-tag tag-neutral" id="ai-ttf-tag">Neutral</span><span class="ai-tag tag-weather">Weather Driven</span></div><span class="tooltip">Analysis based on 7-day rolling average, weather forecasts, and forward curve structure.</span></div>
-                    <div class="ai-summary-card"><h4><span class="icon">⚡</span>Volatility Outlook</h4><p class="value" id="ai-volatility-value">1.85%</p><p>Volatility remains moderate. Potential for spikes on unexpected supply news or sharp weather changes.</p><div class="ai-tags"><span class="ai-tag tag-volatility">Moderate Risk</span><span class="ai-tag tag-geopolitics">Geopolitical Watch</span></div><span class="tooltip">Calculated using GARCH model on intraday price swings and news sentiment analysis.</span></div>
-                    <div class="ai-summary-card"><h4><span class="icon">⛽</span>Storage Impact</h4><p class="value" id="ai-storage-value">65.2%</p><p>EU storage levels are healthy for the season, providing a buffer against immediate shocks. Injection pace is key.</p><div class="ai-tags"><span class="ai-tag tag-storage">Healthy Level</span><span class="ai-tag tag-bearish" id="ai-storage-sentiment">Slightly Bearish Driver</span></div><span class="tooltip">Compared against 5-year average storage levels and current injection/withdrawal rates (AGSI+).</span></div>
-                    <div class="ai-summary-card"><h4><span class="icon">💡</span>Power Spread Signal (DE-FR)</h4><p class="value" id="ai-spread-value">€14.40</p><p>Spread currently reflects higher DE prices. Potential widening if French nuclear output ramps up as projected.</p><div class="ai-tags"><span class="ai-tag tag-neutral">Monitor Closely</span><span class="ai-tag tag-renewables">Renewables Impact</span></div><span class="tooltip">Analysis based on forward power prices, nuclear availability schedules (ENTSO-E), and wind forecasts.</span></div>
-                </div>
-                 <p class="summary-note"><span class="ai-label ai-label-recommendation">🧠 AI Recommendation</span> These insights are generated by a simulated AI model analyzing market data patterns, news, and fundamental drivers. They are illustrative and not financial advice.</p>
-            </section>
-
-            <section class="dashboard-section" id="company-research">
-                 <h2 class="section-title">🏢 Company Research (Sample Data & Links)</h2>
-                <table class="data-table">
-                     <thead><tr><th>Company</th><th>Ticker</th><th>Sector</th><th>Market Cap</th><th>P/E Ratio</th><th>Recent News Snippet</th></tr></thead>
-                     <tbody>
-                         <tr><td><a href="https://www.rwe.com/" target="_blank" rel="noopener noreferrer">RWE AG</a></td><td>RWE.DE</td><td>Utility / Renewables</td><td>€25.5B</td><td>8.5</td><td>Announced new offshore wind project investment...</td></tr>
-                         <tr><td><a href="https://www.engie.com/" target="_blank" rel="noopener noreferrer">Engie SA</a></td><td>ENGI.PA</td><td>Utility / Energy Services</td><td>€34.2B</td><td>7.2</td><td>Reported stable Q1 earnings, focus on energy transition...</td></tr>
-                         <tr><td><a href="https://www.enel.com/" target="_blank" rel="noopener noreferrer">Enel SpA</a></td><td>ENEL.MI</td><td>Utility / Renewables</td><td>€68.0B</td><td>11.3</td><td>Expanding grid modernization efforts in South America...</td></tr>
-                         <tr><td><a href="https://www.sse.com/" target="_blank" rel="noopener noreferrer">SSE plc</a></td><td>SSE.L</td><td>Utility / Networks</td><td>£19.8B</td><td>9.1</td><td>Updates guidance on renewables output for FY...</td></tr>
-                         <tr><td><a href="https://orsted.com/" target="_blank" rel="noopener noreferrer">Ørsted A/S</a></td><td>ORSTED.CO</td><td>Renewables</td><td>DKK 170B</td><td>15.5</td><td>Final investment decision reached on major US offshore wind farm...</td></tr>
-                     </tbody>
-                 </table>
-                  <p class="summary-note">Overview of key European energy players with simulated fundamental data and links to official websites. Click company name to visit site.</p>
-            </section>
-
-            <section class="dashboard-section" id="market-news">
-                <h2 class="section-title">📰 Energy Market News Feed (Sample Headlines)</h2>
-                <div class="news-grid">
-                    <div class="news-card"><h4 class="news-headline"><a href="#" target="_blank" rel="noopener noreferrer">European Gas Prices Ease Slightly as LNG Arrivals Bolster Supply</a></h4><p class="news-meta"><small>Source: Reuters | Date: 2024-05-13 (Simulated)</small></p><div class="news-tags"><span class="news-tag tag-gas-price">Gas Price</span><span class="news-tag tag-storage">LNG Supply</span><span class="news-tag tag-bearish">Bearish</span></div></div>
-                    <div class="news-card"><h4 class="news-headline"><a href="#" target="_blank" rel="noopener noreferrer">Germany Hits New Solar Power Generation Record Over Weekend</a></h4><p class="news-meta"><small>Source: Bloomberg | Date: 2024-05-12 (Simulated)</small></p><div class="news-tags"><span class="news-tag tag-renewables">Renewables</span><span class="news-tag tag-policy">Energy Transition</span><span class="news-tag tag-bearish">Power Price Impact</span></div></div>
-                    <div class="news-card"><h4 class="news-headline"><a href="#" target="_blank" rel="noopener noreferrer">EU Debates Stricter Methane Emission Rules for Energy Sector Imports</a></h4><p class="news-meta"><small>Source: Euractiv | Date: 2024-05-10 (Simulated)</small></p><div class="news-tags"><span class="news-tag tag-policy">Regulation</span><span class="news-tag tag-gas-price">Gas Supply Chain</span><span class="news-tag tag-geopolitics">EU Policy</span></div></div>
-                    <div class="news-card"><h4 class="news-headline"><a href="#" target="_blank" rel="noopener noreferrer">Analysts Watch Weather Models for Shift Towards Cooler Temperatures Next Week</a></h4><p class="news-meta"><small>Source: Montel News | Date: 2024-05-14 (Simulated)</small></p><div class="news-tags"><span class="news-tag tag-weather">Weather Forecast</span><span class="news-tag tag-gas-price">Demand Outlook</span><span class="news-tag tag-bullish">Potentially Bullish</span></div></div>
-                    <div class="news-card"><h4 class="news-headline"><a href="#" target="_blank" rel="noopener noreferrer">Nord Stream Pipeline Repair Uncertainty Continues to Weigh on Long-Term Sentiment</a></h4><p class="news-meta"><small>Source: Financial Times | Date: 2024-05-09 (Simulated)</small></p><div class="news-tags"><span class="news-tag tag-geopolitics">Geopolitics</span><span class="news-tag tag-gas-price">Supply Risk</span><span class="news-tag tag-neutral">Long-Term</span></div></div>
-                    <div class="news-card"><h4 class="news-headline"><a href="#" target="_blank" rel="noopener noreferrer">Carbon Prices (EUA) Find Support Above €65 Ahead of Compliance Deadline</a></h4><p class="news-meta"><small>Source: Carbon Pulse | Date: 2024-05-13 (Simulated)</small></p><div class="news-tags"><span class="news-tag tag-policy">Carbon Market</span><span class="news-tag tag-volatility">Price Action</span><span class="news-tag tag-neutral">Support Level</span></div></div>
-                </div>
-                 <p class="summary-note">Simulated recent headlines relevant to European energy markets. Tags indicate the primary topics covered.</p>
-            </section>
-
-            <section class="dashboard-section" id="data-sources">
-                 <h2 class="section-title">📚 Data Source References (Examples)</h2>
-                 <p><i>Note: Direct real-time data fetching requires backend integration, APIs, and/or subscriptions. AI insights are simulated.</i></p>
-                 <ul class="sources-list">
-                      <li><a href="https://transparency.entsoe.eu" target="_blank" rel="noopener noreferrer">ENTSO-E Transparency Platform</a></li><li><a href="https://www.theice.com/energy" target="_blank" rel="noopener noreferrer">ICE</a></li><li><a href="https://www.eex.com/en/" target="_blank" rel="noopener noreferrer">EEX</a></li><li><a href="https://www.nordpoolgroup.com/en/" target="_blank" rel="noopener noreferrer">Nord Pool</a></li><li><a href="https://tradingeconomics.com/commodities" target="_blank" rel="noopener noreferrer">Trading Economics</a></li><li><a href="https://energy.ec.europa.eu/data-and-analysis/market-analysis_en" target="_blank" rel="noopener noreferrer">EU Energy Market Observatory</a></li><li><a href="https://www.meteomatics.com/en/" target="_blank" rel="noopener noreferrer">Meteomatics</a></li><li><a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a></li><li><a href="https://climate.copernicus.eu/" target="_blank" rel="noopener noreferrer">Copernicus Climate Data Store</a></li><li><a href="https://api.windy.com/" target="_blank" rel="noopener noreferrer">Windy.com API</a></li><li><a href="https://agsi.gie.eu/" target="_blank" rel="noopener noreferrer">AGSI+ (Gas Infrastructure Europe)</a></li><li><a href="https://transparency.entsog.eu/" target="_blank" rel="noopener noreferrer">ENTSOG Transparency Platform</a></li><li><a href="https://www.eea.europa.eu/en" target="_blank" rel="noopener noreferrer">EEA</a></li><li><a href="https://carbon-pulse.com/" target="_blank" rel="noopener noreferrer">Carbon Pulse</a></li><li><a href="https://eur-lex.europa.eu/homepage.html" target="_blank" rel="noopener noreferrer">EUR-Lex</a></li><li><a href="https://data.nasdaq.com/" target="_blank" rel="noopener noreferrer">Nasdaq Data Link (Quandl)</a></li>
-                 </ul>
-             </section>
-
-        </main>
-
-        <footer class="dashboard-footer">
-             <p>Aethel Energy AI Trading Dashboard Demo © 2025. Data is simulated. Last updated: <span id="last-updated-time"></span></p>
-        </footer>
+    <!-- INTRO -->
+    <div class="intro-panel">
+        <div class="intro-label">Dashboard Overview</div>
+        <div class="intro-body">
+            The <strong>European Energy Trading Dashboard</strong> provides a comprehensive view of key macroeconomic indicators, energy market fundamentals, and simulated real-time price movements across Europe's principal trading hubs. Designed for rapid insight and executive-level clarity across gas, power, carbon, and storage markets.
+            This dashboard demonstrates core analytical methods, visual design principles, and the ability to translate complex market data into actionable strategic intelligence.
+        </div>
+        <div class="intro-disclaimer">All 'live' data and charts are simulated for demonstration purposes and do not represent actual real-time market data.</div>
     </div>
 
-    <!-- Chatbot Popup -->
-    <button class="chatbot-button" id="toggle-chatbot" aria-label="Open AI Assistant">🤖</button>
-    <div class="chatbot-popup" id="chatbot-popup">
-        <div class="chatbot-header"><span>AI Assistant</span><button class="chatbot-close" id="close-chatbot" aria-label="Close Chat">×</button></div>
-        <div class="chatbot-body" id="chatbot-body"><div class="chat-message ai-message">Hello! I'm the Aethel Energy AI Assistant. How can I help you analyze the energy market today? Ask about trends, prices, or drivers.</div></div>
-        <div class="chatbot-input-area"><input type="text" class="chatbot-input" id="chatbot-input" placeholder="Ask the AI..."><button class="chatbot-send" id="chatbot-send">Send</button></div>
+    <!-- KEY STATS (KPI Row) -->
+    <div>
+        <div class="panel" style="padding-bottom:0;padding-top:0;">
+            <div style="padding:20px 0 0;">
+                <div class="ticker-badge">
+                    <span class="ticker-dot"></span>
+                    Simulated Live — Key Market Statistics
+                </div>
+            </div>
+        </div>
+        <div class="kpi-grid">
+            <div class="kpi-card" id="kpi-ttf-card">
+                <div class="kpi-label">TTF Gas Price (€/MWh)</div>
+                <div class="kpi-value" id="live-ttf-price">28.75</div>
+                <div class="kpi-desc">Front-month benchmark</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Traded Volume (GWh/Day)</div>
+                <div class="kpi-value" id="live-volume">1,250</div>
+                <div class="kpi-desc">Daily aggregated estimate</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">TTF Volatility (1D %)</div>
+                <div class="kpi-value" id="live-volatility">1.85%</div>
+                <div class="kpi-desc">Short-term price swing</div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-label">Market Sentiment</div>
+                <div class="kpi-value" style="font-size:18px;font-weight:500;line-height:1.4;margin-top:4px;" id="live-sentiment">Neutral</div>
+                <div class="kpi-desc">Aggregated AI signal</div>
+            </div>
+        </div>
     </div>
 
+    <!-- LIVE TICKER CHART -->
+    <div class="panel">
+        <div class="panel-title"><span class="panel-title-num">01</span>Live Price Simulation — TTF Gas (€/MWh)</div>
+        <div class="chart-wrap" style="height:220px;">
+            <canvas id="liveTickerChart"></canvas>
+        </div>
+        <p class="note">Simulated live price feed illustrating short-term TTF gas fluctuations. Refreshes every 3 seconds.</p>
+    </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
+    <!-- EUROPEAN MACRO -->
+    <div class="panel">
+        <div class="panel-title"><span class="panel-title-num">02</span>European Macro &amp; Market Fundamentals</div>
+        <div class="data-grid-6">
+            <div class="data-cell"><div class="data-cell-label">EU GDP (QoQ)</div><div class="data-cell-value" id="eu-gdp">0.3%</div></div>
+            <div class="data-cell"><div class="data-cell-label">Eurozone CPI (YoY)</div><div class="data-cell-value" id="eu-inflation">2.4%</div></div>
+            <div class="data-cell"><div class="data-cell-label">ECB Rate</div><div class="data-cell-value" id="eu-interest-rate">4.50%</div></div>
+            <div class="data-cell"><div class="data-cell-label">EU Gas Storage</div><div class="data-cell-value" id="eu-storage">65.2%</div></div>
+            <div class="data-cell"><div class="data-cell-label">EUA Carbon (€/t)</div><div class="data-cell-value" id="eu-carbon">€65.50</div></div>
+            <div class="data-cell"><div class="data-cell-label">Brent Crude ($/bbl)</div><div class="data-cell-value" id="brent-price">$82.10</div></div>
+        </div>
+        <div class="chart-wrap" style="height:260px;">
+            <canvas id="europeGasChart"></canvas>
+        </div>
+        <p class="note">Simulated 30-day TTF price trend with hover annotations. Macro indicators provide fundamental context for price movements.</p>
+    </div>
 
-            let europeGasChartInstance = null;
-            let liveTickerChart = null;
-            // Updated chartColors to reflect new CSS variables
-            const chartColors = {
-                blue: getComputedStyle(document.documentElement).getPropertyValue('--aethel-primary-blue').trim(),
-                green: getComputedStyle(document.documentElement).getPropertyValue('--aethel-secondary-green').trim(),
-                lightGreen: getComputedStyle(document.documentElement).getPropertyValue('--aethel-light-accent').trim(),
-                aiPurple: getComputedStyle(document.documentElement).getPropertyValue('--ai-color').trim(),
-            };
-            const commonChartOptions = { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: true, position: 'top', labels: { font: { family: 'Urbanist', size: 12 }, usePointStyle: true } }, tooltip: { mode: 'index', intersect: false, bodyFont: { family: 'Urbanist' }, titleFont: { family: 'Urbanist', weight: 'bold' }, backgroundColor: 'rgba(0, 0, 0, 0.8)', padding: 10, cornerRadius: 4, }, }, scales: { x: { type: 'time', adapters: { date: { locale: 'en-GB' } }, time: { tooltipFormat: 'DD MMM YYYY', displayFormats: { day: 'MMM DD' } }, ticks: { font: { family: 'Urbanist' }, maxRotation: 0, autoSkipPadding: 15 }, grid: { display: false } }, y: { ticks: { font: { family: 'Urbanist' }, color: 'rgb(51, 51, 51)' }, grid: { color: '#e0e0e0', borderDash: [3, 4] } } }, elements: { point: { radius: 3, hoverRadius: 6, backgroundColor: chartColors.blue }, line: { tension: 0.1 } }, interaction: { mode: 'index', intersect: false, }, };
-            const countryChartOptions = { ...commonChartOptions, plugins: { ...commonChartOptions.plugins, legend: { display: false } }, scales: { x: { ...commonChartOptions.scales.x, time: { unit: 'day', displayFormats: { day: 'DD' } }, ticks: { maxTicksLimit: 8 } }, y: { ...commonChartOptions.scales.y, ticks: { maxTicksLimit: 5 } } }, elements: { point: { radius: 2, hoverRadius: 5, backgroundColor: chartColors.green }, line: { tension: 0.1 } } };
-            const liveTickerChartOptions = { responsive: true, maintainAspectRatio: false, scales: { x: { type: 'time', adapters: { date: { locale: 'en-GB' } }, time: { unit: 'second', tooltipFormat: 'HH:mm:ss', displayFormats: { second: 'HH:mm:ss' } }, ticks: { source: 'auto', maxRotation: 0, autoSkipPadding: 20, maxTicksLimit: 7 }, grid: { display: false } }, y: { ticks: { font: { family: 'Urbanist' }, maxTicksLimit: 6, color: 'rgb(51, 51, 51)' }, grid: { color: '#e0e0e0', borderDash: [3, 4] } } }, plugins: { legend: { display: false }, tooltip: { mode: 'nearest', intersect: false, bodyFont: { family: 'Urbanist' }, titleFont: { family: 'Urbanist', weight: 'bold' }, backgroundColor: 'rgba(0, 0, 0, 0.8)', padding: 8, cornerRadius: 4, callbacks: { title: function(context) { const label = context[0]?.label; return label ? luxon.DateTime.fromMillis(parseInt(label)).toFormat('HH:mm:ss') : ''; }, label: function(context) { let label = context.dataset.label || ''; if (label) { label += ': '; } if (context.parsed.y !== null) { label += `€${context.parsed.y.toFixed(2)}`; } return label; } } } }, elements: { point: { radius: 0, hoverRadius: 0 }, line: { tension: 0.1, borderWidth: 1.5 } }, animation: false, interaction: { mode: 'index', intersect: false }, };
-            function generateTimeSeriesData(baseValue, numPoints, volatility) { const data = []; const labels = []; let currentValue = baseValue; const startDate = luxon.DateTime.now().minus({ days: numPoints - 1 }); for (let i = 0; i < numPoints; i++) { labels.push(startDate.plus({ days: i }).toMillis()); data.push(parseFloat(currentValue.toFixed(2))); currentValue += (Math.random() - 0.48) * volatility; currentValue = Math.max(currentValue, baseValue * 0.5); } return { labels, data }; }
-            const europeGasCtx = document.getElementById('europeGasChart')?.getContext('2d');
-            if (europeGasCtx) { const { labels: gasLabels, data: gasData } = generateTimeSeriesData(30, 30, 1.5); europeGasChartInstance = new Chart(europeGasCtx, { type: 'line', data: { labels: gasLabels, datasets: [{ label: 'TTF Gas Price (€/MWh)', data: gasData, borderColor: chartColors.blue, backgroundColor: 'rgba(10, 107, 155, 0.1)', borderWidth: 2, fill: true, pointBackgroundColor: chartColors.blue }] }, options: { ...commonChartOptions, scales: { ...commonChartOptions.scales, x: { ...commonChartOptions.scales.x, time: { unit: 'day' } } }, plugins: { ...commonChartOptions.plugins, title: { display: true, text: 'European Gas Price Trend (TTF - Past 30 Days)', font: { family: 'Urbanist', size: 14, weight: 'bold' }, color: chartColors.blue }, tooltip: { ...commonChartOptions.plugins.tooltip, callbacks: { footer: function(tooltipItems) { const value = tooltipItems[0]?.parsed?.y; if (value) { if (value > 35) return '🧠 AI: Price spike likely linked to supply news.'; if (value < 25) return '🧠 AI: Lower prices possibly due to high storage/low demand.'; } return '🧠 AI: Trend within expected range.'; } } } } } }); }
-            const liveTickerCtx = document.getElementById('liveTickerChart')?.getContext('2d'); const TICKER_POINTS = 40; const initialTickerData = Array(TICKER_POINTS).fill(null); const initialTickerLabels = Array(TICKER_POINTS).fill(null).map((_, i) => luxon.DateTime.now().minus({ seconds: TICKER_POINTS - i }).toMillis()); if (liveTickerCtx) { try { liveTickerChart = new Chart(liveTickerCtx, { type: 'line', data: { labels: initialTickerLabels, datasets: [{ label: 'TTF Gas (€/MWh)', data: initialTickerData, borderColor: chartColors.blue, borderWidth: 1.5, pointRadius: 0, fill: false, }] }, options: liveTickerChartOptions }); } catch(e) { console.error("Error creating Live Ticker Chart:", e); } } else { console.error("Canvas context not found for liveTickerChart"); }
-            const countryPeriod = 8; const { labels: ukPowerLabels, data: ukPowerData } = generateTimeSeriesData(75, countryPeriod, 3); const { labels: frPowerLabels, data: frPowerData } = generateTimeSeriesData(45, countryPeriod, 2.5); const { labels: dePowerLabels, data: dePowerData } = generateTimeSeriesData(60, countryPeriod, 4); const { labels: itPowerLabels, data: itPowerData } = generateTimeSeriesData(90, countryPeriod, 3.5); function createCountryChart(ctxId, labels, data, color, labelText) { const ctx = document.getElementById(ctxId)?.getContext('2d'); if (ctx) { new Chart(ctx, { type: 'line', data: { labels: labels, datasets: [{ label: labelText, data: data, borderColor: color, borderWidth: 1.5, fill: false, pointBackgroundColor: color }] }, options: countryChartOptions }); } } createCountryChart('ukPowerChart', ukPowerLabels, ukPowerData, chartColors.green, 'UK Power (£/MWh)'); createCountryChart('frPowerChart', frPowerLabels, frPowerData, chartColors.green, 'FR Power (€/MWh)'); createCountryChart('dePowerChart', dePowerData, dePowerData, chartColors.green, 'DE Power (€/MWh)'); createCountryChart('itPowerChart', itPowerLabels, itPowerData, chartColors.green, 'IT Power (€/MWh)');
-            function getCurrentTimestamp() { return luxon.DateTime.now().toFormat('dd MMM yyyy, HH:mm:ss'); }
-            const liveTtfElement = document.getElementById('live-ttf-price'); const liveVolumeElement = document.getElementById('live-volume'); const liveVolatilityElement = document.getElementById('live-volatility'); const liveSentimentElement = document.getElementById('live-sentiment'); const liveUkPowerElement = document.getElementById('live-uk-power'); const liveFrPowerElement = document.getElementById('live-fr-power'); const liveDePowerElement = document.getElementById('live-de-power'); const liveItPowerElement = document.getElementById('live-it-power'); const euStorageElement = document.getElementById('eu-storage'); const footerTimeElement = document.getElementById('last-updated-time'); const aiTimeElement = document.getElementById('ai-timestamp'); const aiConfidenceBar = document.getElementById('ai-confidence-bar'); const aiConfidenceValue = document.getElementById('ai-confidence-value'); const aiTtfTrendValue = document.getElementById('ai-ttf-trend-value'); const aiTtfTag = document.getElementById('ai-ttf-tag'); const aiVolatilityValue = document.getElementById('ai-volatility-value'); const aiStorageValue = document.getElementById('ai-storage-value'); const aiStorageSentiment = document.getElementById('ai-storage-sentiment'); const aiSpreadValue = document.getElementById('ai-spread-value');
-            const priceElements = [liveTtfElement, liveUkPowerElement, liveFrPowerElement, liveDePowerElement, liveItPowerElement, aiTtfTrendValue]; const allValueElements = [...priceElements, liveVolumeElement, liveVolatilityElement, euStorageElement, aiVolatilityValue, aiStorageValue, aiSpreadValue]; let lastValues = {};
-            function initializeValues() { const initialTime = getCurrentTimestamp(); if (footerTimeElement) footerTimeElement.textContent = initialTime; if (aiTimeElement) aiTimeElement.textContent = initialTime; allValueElements.forEach(el => { if (el) { const text = el.textContent; const num = parseFloat(text.replace(/[€£%$,]/g, '')); lastValues[el.id] = !isNaN(num) ? num : text; } }); const initialTtf = lastValues[liveTtfElement.id]; if (liveTickerChart && !isNaN(initialTtf)) { liveTickerChart.data.datasets[0].data.fill(initialTtf); liveTickerChart.update('none'); } simulateDataUpdate(); }
-            function simulateDataUpdate() { let ttfChange = (Math.random() - 0.5) * 0.3; let storageChange = (Math.random() - 0.45) * 0.1; let currentTtfPrice = lastValues[liveTtfElement.id] || 0; allValueElements.forEach(el => { if (el && lastValues.hasOwnProperty(el.id)) { let newValue = 0; let oldValue = lastValues[el.id]; let prefix = el.textContent.startsWith('€') ? '€' : el.textContent.startsWith('£') ? '£' : ''; let suffix = el.textContent.endsWith('%') ? '%' : ''; let isNumeric = typeof oldValue === 'number'; try { switch (el.id) { case 'live-ttf-price': case 'ai-ttf-trend-value': if (!isNumeric) oldValue = parseFloat(oldValue?.toString().replace(/[€£%,]/g, '')) || 0; newValue = Math.max(10, oldValue + ttfChange); el.textContent = prefix + newValue.toFixed(2); if(el.id === 'live-ttf-price') currentTtfPrice = newValue; break; case 'live-volume': if (!isNumeric) oldValue = parseInt(oldValue?.toString().replace(/,/g, '')) || 1000; newValue = parseInt(oldValue) + Math.floor((Math.random() - 0.5) * 100); el.textContent = newValue.toLocaleString('en-US'); break; case 'live-volatility': case 'ai-volatility-value': if (!isNumeric) oldValue = parseFloat(oldValue?.toString().replace('%', '')) || 0; newValue = Math.max(0.1, oldValue + (Math.random() - 0.5) * 0.2); el.textContent = newValue.toFixed(2) + suffix; break; case 'live-uk-power': case 'live-fr-power': case 'live-de-power': case 'live-it-power': if (!isNumeric) oldValue = parseFloat(oldValue?.toString().replace(/[€£%,]/g, '')) || 0; newValue = Math.max(5, oldValue + (Math.random() - 0.5) * (el.id === 'live-de-power' ? 4.0 : 2.0)); el.textContent = prefix + newValue.toFixed(2); break; case 'eu-storage': case 'ai-storage-value': if (!isNumeric) oldValue = parseFloat(oldValue?.toString().replace('%', '')) || 0; newValue = Math.max(10, Math.min(99, oldValue + storageChange)); el.textContent = newValue.toFixed(1) + suffix; break; case 'ai-spread-value': const dePriceText = liveDePowerElement?.textContent ?? '0'; const frPriceText = liveFrPowerElement?.textContent ?? '0'; const dePrice = parseFloat(dePriceText.replace('€', '')) || 0; const frPrice = parseFloat(frPriceText.replace('€', '')) || 0; newValue = Math.max(0, dePrice - frPrice); el.textContent = '€' + newValue.toFixed(2); break; default: newValue = oldValue; break; } if (typeof newValue === 'number' && !isNaN(newValue)) { lastValues[el.id] = newValue; } else if (!isNumeric) { lastValues[el.id] = newValue; } } catch (error) { console.error(`Error updating element ${el.id}:`, error); if (isNumeric) { newValue = oldValue; lastValues[el.id] = oldValue; } } if (priceElements.includes(el) && typeof oldValue === 'number' && typeof newValue === 'number') { el.classList.remove('price-up', 'price-down', 'price-neutral'); if (newValue > oldValue + 0.01) { el.classList.add('price-up'); } else if (newValue < oldValue - 0.01) { el.classList.add('price-down'); } else { el.classList.add('price-neutral'); } } } else if (el && !lastValues.hasOwnProperty(el.id)) { const text = el.textContent; const num = parseFloat(text.replace(/[€£%$,]/g, '')); lastValues[el.id] = !isNaN(num) ? num : text; } });
-            if (liveSentimentElement && Math.random() < 0.1) { const sentiments = ['Neutral', 'Slightly Bullish', 'Slightly Bearish', 'Bullish', 'Bearish']; const newSentiment = sentiments[Math.floor(Math.random() * sentiments.length)]; liveSentimentElement.textContent = newSentiment; lastValues[liveSentimentElement.id] = newSentiment; }
-            if (aiConfidenceBar && aiConfidenceValue) { let currentConfText = aiConfidenceValue.textContent.match(/(\d+)/)?.[0] ?? '85'; let currentConf = parseFloat(currentConfText); let volText = liveVolatilityElement?.textContent?.replace('%', '') ?? '0'; let vol = parseFloat(volText); if (isNaN(currentConf)) currentConf = 85; if (isNaN(vol)) vol = 0; if (vol > 3.0 || Math.random() < 0.05) { currentConf -= Math.random() * 5; } else if (Math.random() < 0.1) { currentConf += Math.random() * 3; } currentConf = Math.max(50, Math.min(95, currentConf)); const confLevel = currentConf > 80 ? 'High' : currentConf > 65 ? 'Medium' : 'Low'; aiConfidenceValue.textContent = `${confLevel} (${currentConf.toFixed(0)}%)`; aiConfidenceBar.style.width = `${currentConf}%`; aiConfidenceBar.style.backgroundColor = currentConf > 80 ? chartColors.green : currentConf > 65 ? chartColors.aiPurple : 'var(--bearish-color)'; }
-            const ttfVal = lastValues[liveTtfElement?.id]; if (aiTtfTag && typeof ttfVal === 'number') { aiTtfTag.textContent = ttfVal > 32 ? 'Bullish' : ttfVal < 27 ? 'Bearish' : 'Neutral'; aiTtfTag.className = `ai-tag ${ttfVal > 32 ? 'tag-bullish' : ttfVal < 27 ? 'tag-bearish' : 'tag-neutral'}`; } const storageVal = lastValues[euStorageElement?.id]; if (aiStorageSentiment && typeof storageVal === 'number') { aiStorageSentiment.textContent = storageVal > 70 ? 'Bearish Driver' : storageVal < 50 ? 'Bullish Driver' : 'Neutral Driver'; aiStorageSentiment.className = `ai-tag tag-storage ${storageVal > 70 ? 'tag-bearish' : storageVal < 50 ? 'tag-bullish' : 'tag-neutral'}`; }
-            const currentTime = getCurrentTimestamp(); if (footerTimeElement) footerTimeElement.textContent = currentTime; if (aiTimeElement) aiTimeElement.textContent = currentTime;
-            allValueElements.forEach(el => { if (el) { el.classList.add('value-updating'); setTimeout(() => el.classList.remove('value-updating'), 150); } });
-            if (liveTickerChart && liveTickerChart.data?.datasets?.[0]?.data) { const chart = liveTickerChart; const nowMillis = luxon.DateTime.now().toMillis(); chart.data.labels.push(nowMillis); chart.data.datasets[0].data.push(currentTtfPrice); while (chart.data.labels.length > TICKER_POINTS) { chart.data.labels.shift(); chart.data.datasets[0].data.shift(); } if(chart.data.labels.length > 0) { chart.options.scales.x.min = chart.data.labels[0]; chart.options.scales.x.max = nowMillis; } chart.update('none'); } }
-            initializeValues(); setInterval(simulateDataUpdate, 3000);
-            const dateRangeSelect = document.getElementById('ai-date-range'); if (dateRangeSelect) { dateRangeSelect.addEventListener('change', (e) => { console.log(`AI Analysis timeframe changed to: ${e.target.value}. (Simulation: Display only)`); aiConfidenceValue.textContent = "Recalculating..."; setTimeout(() => simulateDataUpdate(), 500); }); } const whatIfButton = document.getElementById('what-if-run'); const whatIfInput = document.getElementById('what-if-storage'); const whatIfResult = document.getElementById('what-if-result'); if (whatIfButton && whatIfInput && whatIfResult) { whatIfButton.addEventListener('click', () => { const simStorage = parseFloat(whatIfInput.value); if (isNaN(simStorage) || simStorage < 0 || simStorage > 100) { whatIfResult.textContent = "Invalid % (0-100)"; whatIfResult.style.color = 'var(--bearish-color)'; return; } let impact = "Neutral"; let color = 'var(--neutral-color)'; if (simStorage < 40) { impact = "Strong Bullish Pressure"; color = 'var(--bullish-color)'; } else if (simStorage < 55) { impact = "Slight Bullish Pressure"; color = 'var(--bullish-color)'; } else if (simStorage > 80) { impact = "Strong Bearish Pressure"; color = 'var(--bearish-color)'; } else if (simStorage > 70) { impact = "Slight Bearish Pressure"; color = 'var(--bearish-color)'; } whatIfResult.textContent = `Impact: ${impact}`; whatIfResult.style.color = color; console.log(`Simulated market impact for storage ${simStorage}%: ${impact}`); }); } const tableRows = document.querySelectorAll('.data-table tbody tr'); tableRows.forEach(row => { row.addEventListener('click', (event) => { if (event.target.tagName === 'A' || event.target.closest('a')) { return; } const companyName = row.cells[0].textContent.trim(); console.log(`Simulating action for company row: ${companyName}`); alert(`Details for ${companyName} would load here or link to a research page.`); }); });
-            const chatbotPopup = document.getElementById('chatbot-popup'); const toggleChatbotButton = document.getElementById('toggle-chatbot'); const closeChatbotButton = document.getElementById('close-chatbot'); const chatbotBody = document.getElementById('chatbot-body'); const chatbotInput = document.getElementById('chatbot-input'); const chatbotSendButton = document.getElementById('chatbot-send'); function toggleChatbot() { if (chatbotPopup.style.display === 'flex') { chatbotPopup.style.display = 'none'; toggleChatbotButton.setAttribute('aria-expanded', 'false'); } else { chatbotPopup.style.display = 'flex'; toggleChatbotButton.setAttribute('aria-expanded', 'true'); chatbotInput.focus(); } } function addChatMessage(message, type = 'ai') { const messageDiv = document.createElement('div'); messageDiv.classList.add('chat-message', type === 'user' ? 'user-message' : 'ai-message'); const sanitizedMessage = message.replace(/</g, "<").replace(/>/g, ">"); messageDiv.innerHTML = sanitizedMessage; chatbotBody.appendChild(messageDiv); chatbotBody.scrollTop = chatbotBody.scrollHeight; } function handleUserInput() { const userInput = chatbotInput.value.trim(); if (userInput === '') return; addChatMessage(userInput, 'user'); chatbotInput.value = ''; let aiResponse = "I'm processing that. Ask me about TTF price, storage levels, volatility, or recent market drivers (like bullish or bearish factors) for a more specific analysis."; const lowerInput = userInput.toLowerCase(); const currentPriceText = liveTtfElement ? liveTtfElement.textContent : 'N/A'; const currentPriceNum = lastValues[liveTtfElement?.id] ?? NaN; const prevPriceNum = lastValues['previous_ttf'] ?? currentPriceNum; let priceDirection = 'stable'; if (!isNaN(currentPriceNum) && !isNaN(prevPriceNum)){ if (currentPriceNum > prevPriceNum + 0.05) priceDirection = 'rising slightly'; else if (currentPriceNum < prevPriceNum - 0.05) priceDirection = 'falling slightly'; } const currentStorageText = euStorageElement ? euStorageElement.textContent : 'N/A'; const currentVolText = liveVolatilityElement ? liveVolatilityElement.textContent : 'N/A'; const currentSentimentText = liveSentimentElement ? liveSentimentElement.textContent : 'Neutral'; if (lowerInput.includes('ttf') || lowerInput.includes('price') || lowerInput.includes('gas')) { aiResponse = `The current TTF gas price is simulated at ${currentPriceText}. Based on recent simulated data, the trend is ${priceDirection}. Key factors influencing this recently include weather patterns and LNG arrivals. My overall market sentiment is ${currentSentimentText}.`; } else if (lowerInput.includes('storage')) { aiResponse = `Simulated EU gas storage is currently at ${currentStorageText}. This level is generally considered healthy for this period, providing some buffer against price shocks. According to my simulation, this currently exerts a slight bearish pressure.`; } else if (lowerInput.includes('volatility') || lowerInput.includes('risk')) { aiResponse = `Simulated market volatility (1-day TTF) is around ${currentVolText}. This suggests moderate risk levels in the simulation. However, simulated geopolitical events or significant weather forecast changes could increase volatility.`; } else if (lowerInput.includes('bullish') || lowerInput.includes('rising') || lowerInput.includes('up')) { aiResponse = `Potential bullish drivers in the simulation could include colder weather forecasts, unexpected supply disruptions (like simulated pipeline issues), or lower renewable energy output forecasts. The AI's current overall sentiment is '${currentSentimentText}'.`; } else if (lowerInput.includes('bearish') || lowerInput.includes('falling') || lowerInput.includes('down')) { aiResponse = `Potential bearish drivers simulated include high storage levels (like the current ${currentStorageText}), strong renewable generation forecasts, mild weather, or signs of weaker economic demand. The AI's current overall sentiment is '${currentSentimentText}'.`; } else if (lowerInput.includes('hello') || lowerInput.includes('hi') || lowerInput.includes('help')) { aiResponse = "Hello! I can provide simulated insights on TTF price trends, storage levels, volatility, and potential market drivers. What are you interested in?"; } else if (lowerInput.includes('news') || lowerInput.includes('headlines')) { aiResponse = "You can find simulated recent news headlines in the 'Energy Market News Feed' section of the dashboard. They cover topics like gas prices, renewables, policy, and weather."; } if (!isNaN(currentPriceNum)) { lastValues['previous_ttf'] = currentPriceNum; } setTimeout(() => { addChatMessage(aiResponse, 'ai'); }, 600 + Math.random() * 400); }
-            if (toggleChatbotButton) toggleChatbotButton.addEventListener('click', toggleChatbot); if (closeChatbotButton) closeChatbotButton.addEventListener('click', toggleChatbot); if (chatbotSendButton) chatbotSendButton.addEventListener('click', handleUserInput); if (chatbotInput) chatbotInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') { e.preventDefault(); handleUserInput(); } });
+    <!-- COUNTRY FOCUS -->
+    <div class="panel">
+        <div class="panel-title"><span class="panel-title-num">03</span>Key Country Focus</div>
+        <div class="country-grid">
+            <div class="country-panel">
+                <div class="country-flag-title">🇬🇧 United Kingdom</div>
+                <div class="country-stats">
+                    <div class="country-stat"><div class="country-stat-label">GDP</div><div class="country-stat-value">0.1%</div></div>
+                    <div class="country-stat"><div class="country-stat-label">CPI</div><div class="country-stat-value">3.2%</div></div>
+                    <div class="country-stat"><div class="country-stat-label">NBP (€/MWh)</div><div class="country-stat-value">€28.10</div></div>
+                    <div class="country-stat"><div class="country-stat-label">Power (£/MWh)</div><div class="country-stat-value" id="live-uk-power">75.50</div></div>
+                </div>
+                <div class="chart-wrap" style="height:140px;"><canvas id="ukPowerChart"></canvas></div>
+                <p class="note" style="margin-top:10px;">UK power influenced by NBP gas, wind generation, and interconnectors.</p>
+            </div>
+            <div class="country-panel">
+                <div class="country-flag-title">🇫🇷 France</div>
+                <div class="country-stats">
+                    <div class="country-stat"><div class="country-stat-label">GDP</div><div class="country-stat-value">0.2%</div></div>
+                    <div class="country-stat"><div class="country-stat-label">CPI</div><div class="country-stat-value">2.2%</div></div>
+                    <div class="country-stat"><div class="country-stat-label">PEG (€/MWh)</div><div class="country-stat-value">€28.50</div></div>
+                    <div class="country-stat"><div class="country-stat-label">Power (€/MWh)</div><div class="country-stat-value" id="live-fr-power">45.80</div></div>
+                </div>
+                <div class="chart-wrap" style="height:140px;"><canvas id="frPowerChart"></canvas></div>
+                <p class="note" style="margin-top:10px;">French power sensitive to nuclear availability and cross-border flows.</p>
+            </div>
+            <div class="country-panel">
+                <div class="country-flag-title">🇩🇪 Germany</div>
+                <div class="country-stats">
+                    <div class="country-stat"><div class="country-stat-label">GDP</div><div class="country-stat-value">-0.2%</div></div>
+                    <div class="country-stat"><div class="country-stat-label">CPI</div><div class="country-stat-value">2.3%</div></div>
+                    <div class="country-stat"><div class="country-stat-label">THE (€/MWh)</div><div class="country-stat-value">€28.90</div></div>
+                    <div class="country-stat"><div class="country-stat-label">Power (€/MWh)</div><div class="country-stat-value" id="live-de-power">60.20</div></div>
+                </div>
+                <div class="chart-wrap" style="height:140px;"><canvas id="dePowerChart"></canvas></div>
+                <p class="note" style="margin-top:10px;">German power driven by renewables output and conventional generation costs.</p>
+            </div>
+            <div class="country-panel">
+                <div class="country-flag-title">🇮🇹 Italy</div>
+                <div class="country-stats">
+                    <div class="country-stat"><div class="country-stat-label">GDP</div><div class="country-stat-value">0.3%</div></div>
+                    <div class="country-stat"><div class="country-stat-label">CPI</div><div class="country-stat-value">1.0%</div></div>
+                    <div class="country-stat"><div class="country-stat-label">PSV (€/MWh)</div><div class="country-stat-value">€29.50</div></div>
+                    <div class="country-stat"><div class="country-stat-label">Power (€/MWh)</div><div class="country-stat-value" id="live-it-power">90.10</div></div>
+                </div>
+                <div class="chart-wrap" style="height:140px;"><canvas id="itPowerChart"></canvas></div>
+                <p class="note" style="margin-top:10px;">Italian power commands a premium due to strong gas reliance; PSV is key driver.</p>
+            </div>
+        </div>
+    </div>
 
-            // --- NEW: Hamburger Menu Toggle Logic for new header ---
-            const hamburgerBtn = document.getElementById('hamburgerBtn');
-            const dropdownMenu = document.getElementById('dropdownMenu');
+    <!-- AI INSIGHTS -->
+    <div class="panel">
+        <div class="panel-title"><span class="panel-title-num">04</span>AI Key Trend Analysis &amp; Insights</div>
 
-            if (hamburgerBtn && dropdownMenu) {
-                hamburgerBtn.addEventListener('click', (event) => {
-                    event.stopPropagation(); // Prevent the document click listener from immediately closing it
-                    dropdownMenu.classList.toggle('hidden');
-                    const isExpanded = dropdownMenu.classList.contains('hidden') ? 'false' : 'true';
-                    hamburgerBtn.setAttribute('aria-expanded', isExpanded);
-                });
+        <div class="ai-controls">
+            <div class="ai-ctrl-group">
+                <span class="ai-ctrl-label">Analysis Timeframe</span>
+                <select id="ai-date-range">
+                    <option value="24h">Last 24 hours</option>
+                    <option value="7d" selected>Last 7 days</option>
+                    <option value="30d">Last 30 days</option>
+                </select>
+            </div>
+            <div class="ai-ctrl-group">
+                <span class="ai-ctrl-label">AI Confidence</span>
+                <div class="confidence-row">
+                    <div class="confidence-track"><div class="confidence-fill" id="ai-confidence-bar"></div></div>
+                    <span class="confidence-val" id="ai-confidence-value">High (85%)</span>
+                </div>
+            </div>
+            <div class="ai-ctrl-group">
+                <span class="ai-ctrl-label">What-If: Storage %</span>
+                <input type="number" id="what-if-storage" placeholder="e.g. 50" style="width:100px;">
+            </div>
+            <div class="ai-ctrl-group">
+                <span class="ai-ctrl-label" style="opacity:0">Run</span>
+                <button class="btn btn-primary" id="what-if-run" style="align-self:flex-end;">Simulate</button>
+            </div>
+            <div class="ai-ctrl-group">
+                <span class="ai-ctrl-label">Result</span>
+                <div id="what-if-result" style="padding-top:5px;font-size:12px;font-weight:600;color:var(--ink);">—</div>
+            </div>
+        </div>
 
-                window.addEventListener('click', (event) => {
-                    // Close the dropdown if clicking outside of the button and the menu
-                    if (!hamburgerBtn.contains(event.target) && !dropdownMenu.contains(event.target)) {
-                        if (!dropdownMenu.classList.contains('hidden')) {
-                            dropdownMenu.classList.add('hidden');
-                            hamburgerBtn.setAttribute('aria-expanded', 'false');
+        <div class="ai-insights-grid">
+            <div class="ai-card">
+                <div class="ai-card-label">TTF Gas Trend</div>
+                <div class="ai-card-value" id="ai-ttf-trend-value">€28.75</div>
+                <div class="ai-card-body">Current price stable; slight contango suggests potential short-term rise. Monitor M+1 vs M+2 spread closely.</div>
+                <div class="tag-row">
+                    <span class="tag" id="ai-ttf-tag">Neutral</span>
+                    <span class="tag tag-faint">Weather Driven</span>
+                </div>
+            </div>
+            <div class="ai-card">
+                <div class="ai-card-label">Volatility Outlook</div>
+                <div class="ai-card-value" id="ai-volatility-value">1.85%</div>
+                <div class="ai-card-body">Volatility remains moderate. Potential for spikes on unexpected supply news or sharp weather changes.</div>
+                <div class="tag-row">
+                    <span class="tag">Moderate Risk</span>
+                    <span class="tag tag-faint">Geopolitical Watch</span>
+                </div>
+            </div>
+            <div class="ai-card">
+                <div class="ai-card-label">Storage Impact (EU Avg)</div>
+                <div class="ai-card-value" id="ai-storage-value">65.2%</div>
+                <div class="ai-card-body">EU storage at healthy seasonal levels, providing buffer against immediate price shocks. Injection pace remains the key variable.</div>
+                <div class="tag-row">
+                    <span class="tag tag-invert">Healthy Level</span>
+                    <span class="tag" id="ai-storage-sentiment">Slightly Bearish</span>
+                </div>
+            </div>
+            <div class="ai-card">
+                <div class="ai-card-label">DE–FR Power Spread</div>
+                <div class="ai-card-value" id="ai-spread-value">€14.40</div>
+                <div class="ai-card-body">Spread reflects higher German prices. Potential widening if French nuclear output ramps as projected.</div>
+                <div class="tag-row">
+                    <span class="tag">Monitor Closely</span>
+                    <span class="tag tag-faint">Renewables Impact</span>
+                </div>
+            </div>
+        </div>
+        <p class="note">AI insights are generated by a simulated model analysing market patterns, news sentiment, and fundamental drivers. Illustrative only — not financial advice.</p>
+    </div>
+
+    <!-- COMPANY RESEARCH -->
+    <div class="panel">
+        <div class="panel-title"><span class="panel-title-num">05</span>Company Research</div>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr><th>Company</th><th>Ticker</th><th>Sector</th><th>Market Cap</th><th>P/E</th><th>Recent Note</th></tr>
+                </thead>
+                <tbody>
+                    <tr><td><a href="https://www.rwe.com/" target="_blank" rel="noopener noreferrer">RWE AG</a></td><td>RWE.DE</td><td>Utility / Renewables</td><td>€25.5B</td><td>8.5x</td><td>New offshore wind project investment announced</td></tr>
+                    <tr><td><a href="https://www.engie.com/" target="_blank" rel="noopener noreferrer">Engie SA</a></td><td>ENGI.PA</td><td>Utility / Energy Services</td><td>€34.2B</td><td>7.2x</td><td>Stable Q1 earnings; energy transition focus</td></tr>
+                    <tr><td><a href="https://www.enel.com/" target="_blank" rel="noopener noreferrer">Enel SpA</a></td><td>ENEL.MI</td><td>Utility / Renewables</td><td>€68.0B</td><td>11.3x</td><td>Grid modernisation expansion in South America</td></tr>
+                    <tr><td><a href="https://www.sse.com/" target="_blank" rel="noopener noreferrer">SSE plc</a></td><td>SSE.L</td><td>Utility / Networks</td><td>£19.8B</td><td>9.1x</td><td>Updated guidance on renewables output for FY</td></tr>
+                    <tr><td><a href="https://orsted.com/" target="_blank" rel="noopener noreferrer">Ørsted A/S</a></td><td>ORSTED.CO</td><td>Renewables</td><td>DKK 170B</td><td>15.5x</td><td>FID reached on major US offshore wind farm</td></tr>
+                </tbody>
+            </table>
+        </div>
+        <p class="note">Simulated fundamental data. Click company name to visit official website.</p>
+    </div>
+
+    <!-- NEWS -->
+    <div class="panel">
+        <div class="panel-title"><span class="panel-title-num">06</span>Energy Market News Feed</div>
+        <div class="news-grid">
+            <div class="news-card">
+                <div class="news-headline"><a href="#" rel="noopener noreferrer">European Gas Prices Ease Slightly as LNG Arrivals Bolster Supply</a></div>
+                <div class="news-meta">Reuters · 13 May 2024 (Simulated)</div>
+                <div class="tag-row"><span class="tag tag-faint">Gas Price</span><span class="tag tag-faint">LNG Supply</span><span class="tag">Bearish</span></div>
+            </div>
+            <div class="news-card">
+                <div class="news-headline"><a href="#" rel="noopener noreferrer">Germany Hits New Solar Power Generation Record Over Weekend</a></div>
+                <div class="news-meta">Bloomberg · 12 May 2024 (Simulated)</div>
+                <div class="tag-row"><span class="tag tag-faint">Renewables</span><span class="tag tag-faint">Policy</span><span class="tag">Power Price Impact</span></div>
+            </div>
+            <div class="news-card">
+                <div class="news-headline"><a href="#" rel="noopener noreferrer">EU Debates Stricter Methane Emission Rules for Energy Sector Imports</a></div>
+                <div class="news-meta">Euractiv · 10 May 2024 (Simulated)</div>
+                <div class="tag-row"><span class="tag tag-faint">Regulation</span><span class="tag tag-faint">EU Policy</span></div>
+            </div>
+            <div class="news-card">
+                <div class="news-headline"><a href="#" rel="noopener noreferrer">Analysts Watch Weather Models for Shift Towards Cooler Temperatures</a></div>
+                <div class="news-meta">Montel · 14 May 2024 (Simulated)</div>
+                <div class="tag-row"><span class="tag tag-faint">Weather</span><span class="tag tag-invert">Potentially Bullish</span></div>
+            </div>
+            <div class="news-card">
+                <div class="news-headline"><a href="#" rel="noopener noreferrer">Nord Stream Uncertainty Continues to Weigh on Long-Term Sentiment</a></div>
+                <div class="news-meta">Financial Times · 9 May 2024 (Simulated)</div>
+                <div class="tag-row"><span class="tag tag-faint">Geopolitics</span><span class="tag">Supply Risk</span></div>
+            </div>
+            <div class="news-card">
+                <div class="news-headline"><a href="#" rel="noopener noreferrer">Carbon Prices (EUA) Find Support Above €65 Ahead of Compliance Deadline</a></div>
+                <div class="news-meta">Carbon Pulse · 13 May 2024 (Simulated)</div>
+                <div class="tag-row"><span class="tag tag-faint">Carbon Market</span><span class="tag">Support Level</span></div>
+            </div>
+        </div>
+        <p class="note">Simulated headlines illustrating relevant European energy market developments.</p>
+    </div>
+
+    <!-- DATA SOURCES -->
+    <div class="panel">
+        <div class="panel-title"><span class="panel-title-num">07</span>Data Source References</div>
+        <p style="font-size:12px;color:var(--ink-faint);font-weight:300;margin-bottom:16px;font-style:italic;">Direct real-time data requires backend integration, APIs, and licensed subscriptions. AI insights are simulated.</p>
+        <ul class="sources-list">
+            <li><a href="https://transparency.entsoe.eu" target="_blank" rel="noopener noreferrer">ENTSO-E Transparency Platform</a></li>
+            <li><a href="https://www.theice.com/energy" target="_blank" rel="noopener noreferrer">ICE Energy Markets</a></li>
+            <li><a href="https://www.eex.com/en/" target="_blank" rel="noopener noreferrer">European Energy Exchange (EEX)</a></li>
+            <li><a href="https://www.nordpoolgroup.com/en/" target="_blank" rel="noopener noreferrer">Nord Pool</a></li>
+            <li><a href="https://tradingeconomics.com/commodities" target="_blank" rel="noopener noreferrer">Trading Economics</a></li>
+            <li><a href="https://energy.ec.europa.eu/data-and-analysis/market-analysis_en" target="_blank" rel="noopener noreferrer">EU Energy Market Observatory</a></li>
+            <li><a href="https://agsi.gie.eu/" target="_blank" rel="noopener noreferrer">AGSI+ (Gas Infrastructure Europe)</a></li>
+            <li><a href="https://transparency.entsog.eu/" target="_blank" rel="noopener noreferrer">ENTSOG Transparency Platform</a></li>
+            <li><a href="https://open-meteo.com/" target="_blank" rel="noopener noreferrer">Open-Meteo</a></li>
+            <li><a href="https://climate.copernicus.eu/" target="_blank" rel="noopener noreferrer">Copernicus Climate Data Store</a></li>
+            <li><a href="https://carbon-pulse.com/" target="_blank" rel="noopener noreferrer">Carbon Pulse</a></li>
+            <li><a href="https://data.nasdaq.com/" target="_blank" rel="noopener noreferrer">Nasdaq Data Link</a></li>
+            <li><a href="https://www.eea.europa.eu/en" target="_blank" rel="noopener noreferrer">European Environment Agency</a></li>
+            <li><a href="https://eur-lex.europa.eu/homepage.html" target="_blank" rel="noopener noreferrer">EUR-Lex</a></li>
+            <li><a href="https://api.windy.com/" target="_blank" rel="noopener noreferrer">Windy.com API</a></li>
+            <li><a href="https://www.meteomatics.com/en/" target="_blank" rel="noopener noreferrer">Meteomatics</a></li>
+        </ul>
+    </div>
+
+</div><!-- /page-wrap -->
+</main>
+
+<!-- FOOTER -->
+<footer class="site-footer">
+    Aethel Energy AI Trading Dashboard — Demonstration Only &nbsp;·&nbsp; Last updated: <span id="last-updated-time">&nbsp;—</span>
+</footer>
+
+<!-- CHATBOT -->
+<button class="chatbot-btn" id="toggle-chatbot" aria-label="Open AI Assistant">🤖</button>
+<div class="chatbot-popup" id="chatbot-popup">
+    <div class="chatbot-header">
+        <span>AI Assistant</span>
+        <button class="chatbot-close" id="close-chatbot" aria-label="Close">×</button>
+    </div>
+    <div class="chatbot-body" id="chatbot-body">
+        <div class="chat-msg ai">Hello. I'm the Aethel Energy AI Assistant. Ask me about TTF price, storage levels, volatility, or market drivers.</div>
+    </div>
+    <div class="chatbot-input-row">
+        <input type="text" class="chatbot-input" id="chatbot-input" placeholder="Ask the AI...">
+        <button class="chatbot-send" id="chatbot-send">Send</button>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    /* ── Utils ── */
+    const $ = s => document.querySelector(s);
+    const luxonDT = luxon.DateTime;
+
+    function getCurrentTimestamp() {
+        return luxonDT.now().toFormat('dd MMM yyyy, HH:mm:ss');
+    }
+
+    /* ── Chart palette (monochrome) ── */
+    const C = {
+        ink:   '#0D0D0D',
+        mid:   '#767676',
+        light: '#D8D8D0',
+        rule:  '#EFEFEB',
+    };
+
+    const baseChartOpts = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                mode: 'index',
+                intersect: false,
+                backgroundColor: 'rgba(13,13,13,0.92)',
+                titleFont: { family: "'Open Sans', sans-serif", weight: '600', size: 11 },
+                bodyFont:  { family: "'Open Sans', sans-serif", size: 11 },
+                padding: 10,
+                cornerRadius: 2,
+            }
+        },
+        scales: {
+            x: {
+                type: 'time',
+                adapters: { date: { locale: 'en-GB' } },
+                time: { tooltipFormat: 'dd MMM yyyy', displayFormats: { day: 'MMM d' } },
+                ticks: { font: { family: "'Open Sans', sans-serif", size: 10 }, color: C.mid, maxRotation: 0, autoSkipPadding: 15 },
+                grid: { display: false },
+                border: { color: C.light }
+            },
+            y: {
+                ticks: { font: { family: "'Open Sans', sans-serif", size: 10 }, color: C.mid },
+                grid: { color: C.rule, borderDash: [3, 4] },
+                border: { display: false }
+            }
+        },
+        elements: {
+            point: { radius: 3, hoverRadius: 5, backgroundColor: C.ink, borderColor: C.ink },
+            line: { tension: 0.15, borderWidth: 1.5, borderColor: C.ink }
+        },
+        interaction: { mode: 'index', intersect: false },
+        animation: { duration: 400 }
+    };
+
+    function genTS(base, n, vol) {
+        const labels = [], data = [];
+        let v = base;
+        const start = luxonDT.now().minus({ days: n - 1 });
+        for (let i = 0; i < n; i++) {
+            labels.push(start.plus({ days: i }).toMillis());
+            data.push(parseFloat(v.toFixed(2)));
+            v += (Math.random() - 0.48) * vol;
+            v = Math.max(v, base * 0.5);
+        }
+        return { labels, data };
+    }
+
+    /* ── Europe Gas 30d ── */
+    const gasCtx = document.getElementById('europeGasChart')?.getContext('2d');
+    if (gasCtx) {
+        const { labels: gl, data: gd } = genTS(30, 30, 1.5);
+        new Chart(gasCtx, {
+            type: 'line',
+            data: {
+                labels: gl,
+                datasets: [{
+                    label: 'TTF Gas (€/MWh)',
+                    data: gd,
+                    borderColor: C.ink,
+                    backgroundColor: 'rgba(13,13,13,0.06)',
+                    fill: true
+                }]
+            },
+            options: {
+                ...baseChartOpts,
+                scales: { ...baseChartOpts.scales, x: { ...baseChartOpts.scales.x, time: { unit: 'day' } } },
+                plugins: {
+                    ...baseChartOpts.plugins,
+                    tooltip: {
+                        ...baseChartOpts.plugins.tooltip,
+                        callbacks: {
+                            footer: items => {
+                                const v = items[0]?.parsed?.y;
+                                if (!v) return '';
+                                if (v > 35) return '↑ AI: Possible supply-side spike.';
+                                if (v < 25) return '↓ AI: High storage / weak demand signal.';
+                                return '→ AI: Trend within expected range.';
+                            }
                         }
                     }
-                });
+                }
             }
+        });
+    }
 
-        }); // End DOMContentLoaded
-    </script>
+    /* ── Live Ticker ── */
+    const TICK_N = 40;
+    const liveCtx = document.getElementById('liveTickerChart')?.getContext('2d');
+    let liveChart = null;
+    const liveLabels = Array(TICK_N).fill(null).map((_, i) => luxonDT.now().minus({ seconds: TICK_N - i }).toMillis());
+    const liveData   = Array(TICK_N).fill(28.75);
+    if (liveCtx) {
+        liveChart = new Chart(liveCtx, {
+            type: 'line',
+            data: {
+                labels: liveLabels,
+                datasets: [{
+                    label: 'TTF (€/MWh)',
+                    data: liveData,
+                    borderColor: C.ink,
+                    borderWidth: 1.5,
+                    pointRadius: 0,
+                    fill: false
+                }]
+            },
+            options: {
+                ...baseChartOpts,
+                animation: false,
+                scales: {
+                    x: {
+                        ...baseChartOpts.scales.x,
+                        time: { unit: 'second', tooltipFormat: 'HH:mm:ss', displayFormats: { second: 'HH:mm:ss' } },
+                        ticks: { ...baseChartOpts.scales.x.ticks, maxTicksLimit: 7 }
+                    },
+                    y: { ...baseChartOpts.scales.y, ticks: { ...baseChartOpts.scales.y.ticks, maxTicksLimit: 6 } }
+                },
+                plugins: {
+                    ...baseChartOpts.plugins,
+                    tooltip: {
+                        ...baseChartOpts.plugins.tooltip,
+                        callbacks: {
+                            title: ctx => {
+                                const ms = parseInt(ctx[0]?.label);
+                                return ms ? luxonDT.fromMillis(ms).toFormat('HH:mm:ss') : '';
+                            },
+                            label: ctx => `TTF: €${ctx.parsed.y?.toFixed(2)}`
+                        }
+                    }
+                }
+            }
+        });
+    }
 
+    /* ── Country charts ── */
+    function createCountryChart(id, base, vol, label) {
+        const ctx = document.getElementById(id)?.getContext('2d');
+        if (!ctx) return;
+        const { labels, data } = genTS(base, 8, vol);
+        new Chart(ctx, {
+            type: 'line',
+            data: { labels, datasets: [{ label, data, borderColor: C.ink, borderWidth: 1.5, pointRadius: 2, fill: false }] },
+            options: {
+                ...baseChartOpts,
+                scales: {
+                    x: { ...baseChartOpts.scales.x, time: { unit: 'day', displayFormats: { day: 'd' } }, ticks: { ...baseChartOpts.scales.x.ticks, maxTicksLimit: 8 } },
+                    y: { ...baseChartOpts.scales.y, ticks: { ...baseChartOpts.scales.y.ticks, maxTicksLimit: 5 } }
+                }
+            }
+        });
+    }
+    createCountryChart('ukPowerChart', 75, 3,   'UK Power (£/MWh)');
+    createCountryChart('frPowerChart', 45, 2.5, 'FR Power (€/MWh)');
+    createCountryChart('dePowerChart', 60, 4,   'DE Power (€/MWh)');
+    createCountryChart('itPowerChart', 90, 3.5, 'IT Power (€/MWh)');
+
+    /* ── Live data simulation ── */
+    const lastVals = {
+        'live-ttf-price':    28.75,
+        'live-volume':       1250,
+        'live-volatility':   1.85,
+        'live-sentiment':    'Neutral',
+        'live-uk-power':     75.50,
+        'live-fr-power':     45.80,
+        'live-de-power':     60.20,
+        'live-it-power':     90.10,
+        'eu-storage':        65.2,
+        'ai-ttf-trend-value':28.75,
+        'ai-volatility-value':1.85,
+        'ai-storage-value':  65.2,
+        'ai-spread-value':   14.40,
+        'ai-confidence':     85
+    };
+
+    function setEl(id, text) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = text;
+    }
+
+    function simulateUpdate() {
+        const ttfΔ = (Math.random() - 0.5) * 0.3;
+        const storΔ = (Math.random() - 0.45) * 0.1;
+
+        lastVals['live-ttf-price']     = Math.max(10, lastVals['live-ttf-price'] + ttfΔ);
+        lastVals['ai-ttf-trend-value'] = lastVals['live-ttf-price'];
+        lastVals['live-volume']        = Math.max(500, lastVals['live-volume'] + Math.floor((Math.random()-0.5)*100));
+        lastVals['live-volatility']    = Math.max(0.1, lastVals['live-volatility'] + (Math.random()-0.5)*0.2);
+        lastVals['ai-volatility-value'] = lastVals['live-volatility'];
+        lastVals['live-uk-power']      = Math.max(5, lastVals['live-uk-power'] + (Math.random()-0.5)*2);
+        lastVals['live-fr-power']      = Math.max(5, lastVals['live-fr-power'] + (Math.random()-0.5)*2);
+        lastVals['live-de-power']      = Math.max(5, lastVals['live-de-power'] + (Math.random()-0.5)*4);
+        lastVals['live-it-power']      = Math.max(5, lastVals['live-it-power'] + (Math.random()-0.5)*2);
+        lastVals['eu-storage']         = Math.max(10, Math.min(99, lastVals['eu-storage'] + storΔ));
+        lastVals['ai-storage-value']   = lastVals['eu-storage'];
+        lastVals['ai-spread-value']    = Math.max(0, lastVals['live-de-power'] - lastVals['live-fr-power']);
+
+        if (Math.random() < 0.1) {
+            const s = ['Neutral','Slightly Bullish','Slightly Bearish','Bullish','Bearish'];
+            lastVals['live-sentiment'] = s[Math.floor(Math.random() * s.length)];
+        }
+        lastVals['ai-confidence'] = Math.max(50, Math.min(95, lastVals['ai-confidence'] + (Math.random()-0.5)*3));
+
+        // Update DOM
+        const ttf = lastVals['live-ttf-price'];
+        const prevTtf = parseFloat(document.getElementById('live-ttf-price')?.textContent) || ttf;
+        setEl('live-ttf-price',     ttf.toFixed(2));
+        setEl('ai-ttf-trend-value', '€' + ttf.toFixed(2));
+        setEl('live-volume',        lastVals['live-volume'].toLocaleString('en-GB'));
+        setEl('live-volatility',    lastVals['live-volatility'].toFixed(2) + '%');
+        setEl('ai-volatility-value',lastVals['live-volatility'].toFixed(2) + '%');
+        setEl('live-sentiment',     lastVals['live-sentiment']);
+        setEl('live-uk-power',      lastVals['live-uk-power'].toFixed(2));
+        setEl('live-fr-power',      lastVals['live-fr-power'].toFixed(2));
+        setEl('live-de-power',      lastVals['live-de-power'].toFixed(2));
+        setEl('live-it-power',      lastVals['live-it-power'].toFixed(2));
+        setEl('eu-storage',         lastVals['eu-storage'].toFixed(1) + '%');
+        setEl('ai-storage-value',   lastVals['eu-storage'].toFixed(1) + '%');
+        setEl('ai-spread-value',    '€' + lastVals['ai-spread-value'].toFixed(2));
+
+        // KPI price direction
+        const kpiCard = document.getElementById('kpi-ttf-card');
+        if (kpiCard) {
+            kpiCard.classList.remove('kpi-up', 'kpi-down');
+            if (ttf > prevTtf + 0.01) kpiCard.classList.add('kpi-up');
+            else if (ttf < prevTtf - 0.01) kpiCard.classList.add('kpi-down');
+        }
+
+        // AI tags
+        const ttfTag = document.getElementById('ai-ttf-tag');
+        if (ttfTag) { ttfTag.textContent = ttf > 32 ? 'Bullish' : ttf < 27 ? 'Bearish' : 'Neutral'; }
+        const storTag = document.getElementById('ai-storage-sentiment');
+        const sv = lastVals['eu-storage'];
+        if (storTag) { storTag.textContent = sv > 70 ? 'Bearish Driver' : sv < 50 ? 'Bullish Driver' : 'Neutral Driver'; }
+
+        // Confidence bar
+        const conf = lastVals['ai-confidence'];
+        const bar = document.getElementById('ai-confidence-bar');
+        const val = document.getElementById('ai-confidence-value');
+        if (bar) bar.style.width = conf + '%';
+        if (val) val.textContent = (conf > 80 ? 'High' : conf > 65 ? 'Medium' : 'Low') + ' (' + conf.toFixed(0) + '%)';
+
+        // Timestamps
+        const ts = getCurrentTimestamp();
+        setEl('last-updated-time', ts);
+        setEl('nav-timestamp',     'Updated ' + luxonDT.now().toFormat('HH:mm:ss'));
+
+        // Live ticker chart
+        if (liveChart) {
+            const now = luxonDT.now().toMillis();
+            liveChart.data.labels.push(now);
+            liveChart.data.datasets[0].data.push(parseFloat(ttf.toFixed(2)));
+            while (liveChart.data.labels.length > TICK_N) {
+                liveChart.data.labels.shift();
+                liveChart.data.datasets[0].data.shift();
+            }
+            liveChart.update('none');
+        }
+    }
+
+    simulateUpdate();
+    setInterval(simulateUpdate, 3000);
+
+    /* ── What-if ── */
+    document.getElementById('what-if-run')?.addEventListener('click', () => {
+        const v = parseFloat(document.getElementById('what-if-storage')?.value);
+        const el = document.getElementById('what-if-result');
+        if (!el) return;
+        if (isNaN(v) || v < 0 || v > 100) { el.textContent = 'Invalid % (0–100)'; el.style.color = '#8B2020'; return; }
+        const impact = v < 40 ? 'Strong Bullish Pressure' : v < 55 ? 'Slight Bullish Pressure' : v > 80 ? 'Strong Bearish Pressure' : v > 70 ? 'Slight Bearish Pressure' : 'Neutral';
+        const col = v < 55 ? '#1a6b35' : v > 70 ? '#8B2020' : 'var(--ink-mid)';
+        el.textContent = impact; el.style.color = col;
+    });
+
+    /* ── AI date range ── */
+    document.getElementById('ai-date-range')?.addEventListener('change', () => {
+        const val = document.getElementById('ai-confidence-value');
+        if (val) val.textContent = 'Recalculating…';
+        setTimeout(simulateUpdate, 600);
+    });
+
+    /* ── Hamburger ── */
+    const hamburgerBtn = document.getElementById('hamburgerBtn');
+    const dropdownMenu = document.getElementById('dropdownMenu');
+    if (hamburgerBtn && dropdownMenu) {
+        hamburgerBtn.addEventListener('click', e => {
+            e.stopPropagation();
+            dropdownMenu.classList.toggle('open');
+            hamburgerBtn.setAttribute('aria-expanded', dropdownMenu.classList.contains('open'));
+        });
+        window.addEventListener('click', e => {
+            if (!hamburgerBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+                dropdownMenu.classList.remove('open');
+                hamburgerBtn.setAttribute('aria-expanded', 'false');
+            }
+        });
+    }
+
+    /* ── Chatbot ── */
+    const popup  = document.getElementById('chatbot-popup');
+    const body   = document.getElementById('chatbot-body');
+    const input  = document.getElementById('chatbot-input');
+    const send   = document.getElementById('chatbot-send');
+    const toggle = document.getElementById('toggle-chatbot');
+    const close  = document.getElementById('close-chatbot');
+
+    function toggleChat() {
+        popup.style.display = popup.style.display === 'flex' ? 'none' : 'flex';
+        if (popup.style.display === 'flex') input?.focus();
+    }
+    toggle?.addEventListener('click', toggleChat);
+    close?.addEventListener('click', toggleChat);
+
+    function addMsg(text, type) {
+        const d = document.createElement('div');
+        d.className = 'chat-msg ' + type;
+        d.textContent = text;
+        body?.appendChild(d);
+        if (body) body.scrollTop = body.scrollHeight;
+    }
+
+    function handleInput() {
+        const txt = input?.value.trim();
+        if (!txt) return;
+        addMsg(txt, 'usr');
+        if (input) input.value = '';
+        const lo = txt.toLowerCase();
+        const price = lastVals['live-ttf-price'].toFixed(2);
+        const stor  = lastVals['eu-storage'].toFixed(1);
+        const vol   = lastVals['live-volatility'].toFixed(2);
+        const sent  = lastVals['live-sentiment'];
+        let resp = "I can help with TTF price, storage levels, volatility, or market sentiment. What would you like to know?";
+        if (lo.includes('ttf') || lo.includes('price') || lo.includes('gas'))
+            resp = `Current TTF is €${price}/MWh. Sentiment is ${sent}. Key drivers include weather forecasts and LNG arrivals.`;
+        else if (lo.includes('storage'))
+            resp = `EU gas storage is at ${stor}%. Healthy seasonal levels currently exert a mild bearish influence on prices.`;
+        else if (lo.includes('volatility') || lo.includes('risk'))
+            resp = `1-day TTF volatility is ${vol}%. Moderate risk. Watch for weather shifts or geopolitical supply news.`;
+        else if (lo.includes('bullish') || lo.includes('rising'))
+            resp = `Bullish drivers: colder weather, supply disruptions, lower renewable output. Current sentiment: ${sent}.`;
+        else if (lo.includes('bearish') || lo.includes('falling'))
+            resp = `Bearish drivers: high storage (${stor}%), strong renewables, mild temperatures. Current sentiment: ${sent}.`;
+        else if (lo.includes('news'))
+            resp = "Simulated news headlines are in the Energy Market News Feed section. Topics cover gas, renewables, policy, and weather.";
+        else if (lo.includes('hello') || lo.includes('hi'))
+            resp = "Hello. Ask me about TTF prices, storage levels, volatility, or market drivers.";
+        setTimeout(() => addMsg(resp, 'ai'), 500 + Math.random() * 400);
+    }
+
+    send?.addEventListener('click', handleInput);
+    input?.addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); handleInput(); } });
+
+    /* ── Table row click ── */
+    document.querySelectorAll('.data-table tbody tr, table tbody tr').forEach(row => {
+        row.addEventListener('click', e => {
+            if (e.target.tagName === 'A' || e.target.closest('a')) return;
+            const name = row.cells[0]?.textContent?.trim();
+            if (name) alert(`Details for ${name} would load here or link to a research page.`);
+        });
+    });
+
+});
+</script>
 </body>
 </html>
