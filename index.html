@@ -32,7 +32,7 @@
         }
 
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-        html, body { height: 100%; }
+        html { height: 100%; }
         body {
             font-family: var(--font-body);
             background: var(--bg);
@@ -40,7 +40,8 @@
             line-height: 1.65;
             -webkit-font-smoothing: antialiased;
             font-size: 14px;
-            padding-bottom: 64px;
+            /* footer is 48px fixed; give generous clearance below last panel */
+            padding-bottom: calc(48px + 40px);
         }
 
         /* ── NAV ── */
@@ -167,7 +168,7 @@
         .page-wrap {
             max-width: var(--max-width);
             margin: 0 auto;
-            padding: 32px 32px 0;
+            padding: 32px 32px 40px;
             display: flex;
             flex-direction: column;
             gap: 20px;
@@ -639,7 +640,7 @@
         /* ── CHATBOT ── */
         .chatbot-btn {
             position: fixed;
-            bottom: 72px;
+            bottom: calc(48px + 16px);
             right: 28px;
             width: 44px;
             height: 44px;
@@ -660,7 +661,7 @@
         .chatbot-popup {
             display: none;
             position: fixed;
-            bottom: 124px;
+            bottom: calc(48px + 16px + 44px + 10px);
             right: 28px;
             width: 300px;
             max-height: 380px;
@@ -744,14 +745,34 @@
             border-top: 1px solid rgba(255,255,255,0.08);
             display: flex;
             align-items: center;
-            justify-content: center;
+            z-index: 100;
+        }
+        .site-footer-inner {
+            max-width: var(--max-width);
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+        .footer-copy {
             font-size: 11px;
             color: rgba(255,255,255,0.3);
             font-weight: 300;
             letter-spacing: 0.04em;
-            z-index: 100;
+            white-space: nowrap;
         }
-        #last-updated-time { color: rgba(255,255,255,0.55); font-weight: 400; }
+        .footer-updated {
+            font-size: 11px;
+            color: rgba(255,255,255,0.25);
+            font-weight: 300;
+            letter-spacing: 0.03em;
+            text-align: right;
+            white-space: nowrap;
+        }
+        #last-updated-time { color: rgba(255,255,255,0.5); font-weight: 400; }
 
         /* ── RESPONSIVE ── */
         @media (max-width: 1000px) {
@@ -762,7 +783,7 @@
             .sources-list { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 680px) {
-            .page-wrap { padding: 20px 16px 0; }
+            .page-wrap { padding: 20px 16px 40px; }
             .country-grid { grid-template-columns: 1fr; }
             .news-grid { grid-template-columns: 1fr; }
             .data-grid-6 { grid-template-columns: repeat(2, 1fr); }
@@ -770,6 +791,11 @@
             .sources-list { grid-template-columns: 1fr; }
             .site-nav-inner { padding: 0 16px; }
             .nav-dropdown { right: 16px; width: calc(100vw - 32px); }
+            .site-footer-inner { padding: 0 16px; }
+            .footer-copy { font-size: 10px; }
+            .footer-updated { font-size: 10px; }
+            .chatbot-btn { right: 16px; bottom: calc(48px + 12px); }
+            .chatbot-popup { right: 16px; width: calc(100vw - 32px); bottom: calc(48px + 12px + 44px + 10px); }
         }
 
         /* ── PRINT ── */
@@ -792,7 +818,8 @@
             </svg>
             <div class="nav-divider-v"></div>
             <div class="nav-titles">
-                <div class="nav-title">European Trading Dashboard — Market Intelligence</div>
+                <div class="nav-title">Aethel Energy</div>
+                <div class="nav-sub">European Trading Dashboard — Market Intelligence &amp; Strategic Insight</div>
             </div>
         </div>
         <div class="nav-meta">
@@ -805,7 +832,7 @@
             <div class="nav-dropdown-name">Don Spampinato</div>
             <div class="nav-dropdown-role">Digital Transformation Solutions Consultant</div>
             <div class="nav-dropdown-links">
-                <a href="mailto:donspampinato@gmail.com"><strong>Email</strong><span>donspampinato@gmail.com</span></a>
+                <a href="/cdn-cgi/l/email-protection#96f2f9f8e5e6f7fbe6fff8f7e2f9d6f1fbf7fffab8f5f9fb"><strong>Email</strong><span><span class="__cf_email__" data-cfemail="74101b1a07041519041d1a15001b341319151d185a171b19">[email&#160;protected]</span></span></a>
                 <a href="tel:+447983352068"><strong>Phone</strong><span>+44 (0) 7983 352 068</span></a>
                 <a href="http://www.donspampinato.co.uk" target="_blank" rel="noopener noreferrer"><strong>Web</strong><span>www.donspampinato.co.uk</span></a>
                 <a href="https://www.linkedin.com/in/donspampinato/" target="_blank" rel="noopener noreferrer"><strong>LinkedIn</strong><span>in/donspampinato</span></a>
@@ -822,7 +849,7 @@
     <div class="intro-panel">
         <div class="intro-label">Dashboard Overview</div>
         <div class="intro-body">
-            The <strong>European Energy Trading Dashboard</strong> provides a comprehensive view of key macroeconomic indicators, energy market fundamentals, and simulated real-time price movements across Europe's principal trading hubs. Designed for rapid insight and executive-level clarity across gas, power, carbon, and storage markets.
+            The <strong>Aethel Energy</strong> European Energy Trading Dashboard provides a comprehensive view of key macroeconomic indicators, energy market fundamentals, and simulated real-time price movements across Europe's principal trading hubs. Designed for rapid insight and executive-level clarity across gas, power, carbon, and storage markets.
             This dashboard demonstrates core analytical methods, visual design principles, and the ability to translate complex market data into actionable strategic intelligence.
         </div>
         <div class="intro-disclaimer">All 'live' data and charts are simulated for demonstration purposes and do not represent actual real-time market data.</div>
@@ -1101,7 +1128,10 @@
 
 <!-- FOOTER -->
 <footer class="site-footer">
-    Aethel Energy AI Trading Dashboard — Demonstration Only &nbsp;·&nbsp; Last updated: <span id="last-updated-time">&nbsp;—</span>
+    <div class="site-footer-inner">
+        <span class="footer-copy">© <span id="fyYear"></span> Aethel Energy AI Trading Dashboard — Demonstration Only</span>
+        <span class="footer-updated">Last updated: <span id="last-updated-time">—</span></span>
+    </div>
 </footer>
 
 <!-- CHATBOT -->
@@ -1120,12 +1150,16 @@
     </div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 document.addEventListener('DOMContentLoaded', () => {
 
     /* ── Utils ── */
     const $ = s => document.querySelector(s);
     const luxonDT = luxon.DateTime;
+
+    // Set footer year
+    const fyYearEl = document.getElementById('fyYear');
+    if (fyYearEl) fyYearEl.textContent = new Date().getFullYear();
 
     function getCurrentTimestamp() {
         return luxonDT.now().toFormat('dd MMM yyyy, HH:mm:ss');
@@ -1496,13 +1530,4 @@ document.addEventListener('DOMContentLoaded', () => {
     /* ── Table row click ── */
     document.querySelectorAll('.data-table tbody tr, table tbody tr').forEach(row => {
         row.addEventListener('click', e => {
-            if (e.target.tagName === 'A' || e.target.closest('a')) return;
-            const name = row.cells[0]?.textContent?.trim();
-            if (name) alert(`Details for ${name} would load here or link to a research page.`);
-        });
-    });
-
-});
-</script>
-</body>
-</html>
+            if (e.target.tagNam
