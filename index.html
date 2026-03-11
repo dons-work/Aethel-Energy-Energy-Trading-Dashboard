@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>European Trading Dashboard</title>
+    <title>Aethel Energy — European Trading Dashboard</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Open+Sans:wght@300;400;600;700&display=swap" rel="stylesheet">
@@ -289,6 +289,15 @@
         }
         .kpi-up .kpi-value   { color: #1a6b35; }
         .kpi-down .kpi-value { color: #8B2020; }
+
+        /* ── Value flash on update (mirrors original) ── */
+        .value-updating {
+            background-color: rgba(13,13,13,0.06) !important;
+            transition: background-color 0.1s ease;
+        }
+        .price-up   { background: linear-gradient(to top right, rgba(26,107,53,0.08), rgba(255,255,255,0)); }
+        .price-down { background: linear-gradient(to bottom right, rgba(139,32,32,0.08), rgba(255,255,255,0)); }
+        .price-neutral { background: none; }
 
         /* ── LIVE TICKER ── */
         .ticker-badge {
@@ -827,7 +836,8 @@
             </svg>
             <div class="nav-divider-v"></div>
             <div class="nav-titles">
-                <div class="nav-title">European Trading Dashboard — Market Intelligence</div>
+                <div class="nav-title">Aethel Energy</div>
+                <div class="nav-sub">European Trading Dashboard — Market Intelligence &amp; Strategic Insight</div>
             </div>
         </div>
         <div class="nav-meta">
@@ -857,7 +867,7 @@
     <div class="intro-panel">
         <div class="intro-label">Dashboard Overview</div>
         <div class="intro-body">
-            The <strong>European Energy Trading Dashboard</strong> provides a comprehensive view of key macroeconomic indicators, energy market fundamentals, and simulated real-time price movements across Europe's principal trading hubs. Designed for rapid insight and executive-level clarity across gas, power, carbon, and storage markets.
+            The <strong>Aethel Energy</strong> European Energy Trading Dashboard provides a comprehensive view of key macroeconomic indicators, energy market fundamentals, and simulated real-time price movements across Europe's principal trading hubs. Designed for rapid insight and executive-level clarity across gas, power, carbon, and storage markets.
             This dashboard demonstrates core analytical methods, visual design principles, and the ability to translate complex market data into actionable strategic intelligence.
         </div>
         <div class="intro-disclaimer">All 'live' data and charts are simulated for demonstration purposes and do not represent actual real-time market data.</div>
@@ -1135,7 +1145,7 @@
 <!-- FOOTER -->
 <footer class="site-footer">
     <div class="site-footer-inner">
-        <span class="footer-copy">© <span id="fyYear"></span>AI Trading Dashboard — Demonstration Only</span>
+        <span class="footer-copy">© <span id="fyYear"></span> Aethel Energy AI Trading Dashboard — Demonstration Only</span>
         <span class="footer-updated">Last updated: <span id="last-updated-time">—</span></span>
     </div>
 </footer>
@@ -1148,7 +1158,7 @@
         <button class="chatbot-close" id="close-chatbot" aria-label="Close">×</button>
     </div>
     <div class="chatbot-body" id="chatbot-body">
-        <div class="chat-msg ai">Hello. I'm the Energy Trading AI Assistant. Ask me about TTF price, storage levels, volatility, or market drivers.</div>
+        <div class="chat-msg ai">Hello. I'm the Aethel Energy AI Assistant. Ask me about TTF price, storage levels, volatility, or market drivers.</div>
     </div>
     <div class="chatbot-input-row">
         <input type="text" class="chatbot-input" id="chatbot-input" placeholder="Ask the AI...">
@@ -1156,11 +1166,10 @@
     </div>
 </div>
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 document.addEventListener('DOMContentLoaded', () => {
 
     /* ── Utils ── */
-    const $ = s => document.querySelector(s);
     const luxonDT = luxon.DateTime;
 
     // Set footer year
@@ -1269,51 +1278,73 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* ── Live Ticker ── */
-    const TICK_N = 40;
+    const TICKER_POINTS = 40;
     const liveCtx = document.getElementById('liveTickerChart')?.getContext('2d');
-    let liveChart = null;
-    const liveLabels = Array(TICK_N).fill(null).map((_, i) => luxonDT.now().minus({ seconds: TICK_N - i }).toMillis());
-    const liveData   = Array(TICK_N).fill(28.75);
+    let liveTickerChart = null;
+    const initialTickerLabels = Array(TICKER_POINTS).fill(null).map((_, i) =>
+        luxonDT.now().minus({ seconds: TICKER_POINTS - i }).toMillis()
+    );
+    const initialTickerData = Array(TICKER_POINTS).fill(null);
+
     if (liveCtx) {
-        liveChart = new Chart(liveCtx, {
-            type: 'line',
-            data: {
-                labels: liveLabels,
-                datasets: [{
-                    label: 'TTF (€/MWh)',
-                    data: liveData,
-                    borderColor: C.ink,
-                    borderWidth: 1.5,
-                    pointRadius: 0,
-                    fill: false
-                }]
-            },
-            options: {
-                ...baseChartOpts,
-                animation: false,
-                scales: {
-                    x: {
-                        ...baseChartOpts.scales.x,
-                        time: { unit: 'second', tooltipFormat: 'HH:mm:ss', displayFormats: { second: 'HH:mm:ss' } },
-                        ticks: { ...baseChartOpts.scales.x.ticks, maxTicksLimit: 7 }
-                    },
-                    y: { ...baseChartOpts.scales.y, ticks: { ...baseChartOpts.scales.y.ticks, maxTicksLimit: 6 } }
+        try {
+            liveTickerChart = new Chart(liveCtx, {
+                type: 'line',
+                data: {
+                    labels: initialTickerLabels,
+                    datasets: [{
+                        label: 'TTF Gas (€/MWh)',
+                        data: initialTickerData,
+                        borderColor: C.ink,
+                        borderWidth: 1.5,
+                        pointRadius: 0,
+                        fill: false,
+                    }]
                 },
-                plugins: {
-                    ...baseChartOpts.plugins,
-                    tooltip: {
-                        ...baseChartOpts.plugins.tooltip,
-                        callbacks: {
-                            title: ctx => {
-                                const ms = parseInt(ctx[0]?.label);
-                                return ms ? luxonDT.fromMillis(ms).toFormat('HH:mm:ss') : '';
-                            },
-                            label: ctx => `TTF: €${ctx.parsed.y?.toFixed(2)}`
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    animation: false,
+                    interaction: { mode: 'index', intersect: false },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: 'rgba(13,13,13,0.92)',
+                            titleFont: { family: "'Open Sans', sans-serif", weight: '600', size: 11 },
+                            bodyFont:  { family: "'Open Sans', sans-serif", size: 11 },
+                            padding: 10,
+                            cornerRadius: 2,
+                            callbacks: {
+                                title: ctx => {
+                                    const ms = parseInt(ctx[0]?.label);
+                                    return ms ? luxonDT.fromMillis(ms).toFormat('HH:mm:ss') : '';
+                                },
+                                label: ctx => `TTF: €${ctx.parsed.y?.toFixed(2)}`
+                            }
                         }
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            adapters: { date: { locale: 'en-GB' } },
+                            time: { unit: 'second', tooltipFormat: 'HH:mm:ss', displayFormats: { second: 'HH:mm:ss' } },
+                            ticks: { source: 'auto', maxRotation: 0, autoSkipPadding: 20, maxTicksLimit: 7, font: { family: "'Open Sans', sans-serif", size: 10 }, color: C.mid },
+                            grid: { display: false },
+                            border: { color: C.light }
+                        },
+                        y: {
+                            ticks: { maxTicksLimit: 6, font: { family: "'Open Sans', sans-serif", size: 10 }, color: C.mid },
+                            grid: { color: C.rule, borderDash: [3, 4] },
+                            border: { display: false }
+                        }
+                    },
+                    elements: {
+                        point: { radius: 0, hoverRadius: 0 },
+                        line: { tension: 0.1, borderWidth: 1.5 }
                     }
                 }
-            }
-        });
+            });
+        } catch(e) { console.error('Error creating Live Ticker Chart:', e); }
     }
 
     /* ── Country charts ── */
@@ -1333,136 +1364,256 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     }
-    createCountryChart('ukPowerChart', 75, 3,   'UK Power (£/MWh)');
-    createCountryChart('frPowerChart', 45, 2.5, 'FR Power (€/MWh)');
-    createCountryChart('dePowerChart', 60, 4,   'DE Power (€/MWh)');
-    createCountryChart('itPowerChart', 90, 3.5, 'IT Power (€/MWh)');
+    createCountryChart('ukPowerChart', 75,  3,   'UK Power (£/MWh)');
+    createCountryChart('frPowerChart', 45,  2.5, 'FR Power (€/MWh)');
+    createCountryChart('dePowerChart', 60,  4,   'DE Power (€/MWh)');
+    createCountryChart('itPowerChart', 90,  3.5, 'IT Power (€/MWh)');
 
     /* ── Live data simulation ── */
-    const lastVals = {
-        'live-ttf-price':    28.75,
-        'live-volume':       1250,
-        'live-volatility':   1.85,
-        'live-sentiment':    'Neutral',
-        'live-uk-power':     75.50,
-        'live-fr-power':     45.80,
-        'live-de-power':     60.20,
-        'live-it-power':     90.10,
-        'eu-storage':        65.2,
-        'ai-ttf-trend-value':28.75,
-        'ai-volatility-value':1.85,
-        'ai-storage-value':  65.2,
-        'ai-spread-value':   14.40,
-        'ai-confidence':     85
-    };
+    // DOM element refs — mirror original exactly
+    const liveTtfElement       = document.getElementById('live-ttf-price');
+    const liveVolumeElement    = document.getElementById('live-volume');
+    const liveVolatilityElement= document.getElementById('live-volatility');
+    const liveSentimentElement = document.getElementById('live-sentiment');
+    const liveUkPowerElement   = document.getElementById('live-uk-power');
+    const liveFrPowerElement   = document.getElementById('live-fr-power');
+    const liveDePowerElement   = document.getElementById('live-de-power');
+    const liveItPowerElement   = document.getElementById('live-it-power');
+    const euStorageElement     = document.getElementById('eu-storage');
+    const footerTimeElement    = document.getElementById('last-updated-time');
+    const aiConfidenceBar      = document.getElementById('ai-confidence-bar');
+    const aiConfidenceValue    = document.getElementById('ai-confidence-value');
+    const aiTtfTrendValue      = document.getElementById('ai-ttf-trend-value');
+    const aiTtfTag             = document.getElementById('ai-ttf-tag');
+    const aiVolatilityValue    = document.getElementById('ai-volatility-value');
+    const aiStorageValue       = document.getElementById('ai-storage-value');
+    const aiStorageSentiment   = document.getElementById('ai-storage-sentiment');
+    const aiSpreadValue        = document.getElementById('ai-spread-value');
 
-    function setEl(id, text) {
-        const el = document.getElementById(id);
-        if (el) el.textContent = text;
+    const priceElements = [
+        liveTtfElement, liveUkPowerElement, liveFrPowerElement,
+        liveDePowerElement, liveItPowerElement, aiTtfTrendValue
+    ];
+    const allValueElements = [
+        ...priceElements, liveVolumeElement, liveVolatilityElement,
+        euStorageElement, aiVolatilityValue, aiStorageValue, aiSpreadValue
+    ];
+
+    let lastValues = {};
+
+    /* initializeValues — seeds lastValues from DOM, fills ticker chart, runs first update */
+    function initializeValues() {
+        const initialTime = getCurrentTimestamp();
+        if (footerTimeElement) footerTimeElement.textContent = initialTime;
+
+        allValueElements.forEach(el => {
+            if (el) {
+                const text = el.textContent;
+                const num  = parseFloat(text.replace(/[€£%$,]/g, ''));
+                lastValues[el.id] = !isNaN(num) ? num : text;
+            }
+        });
+
+        // Seed live ticker chart with initial TTF value
+        const initialTtf = lastValues[liveTtfElement?.id];
+        if (liveTickerChart && !isNaN(initialTtf)) {
+            liveTickerChart.data.datasets[0].data.fill(initialTtf);
+            liveTickerChart.update('none');
+        }
+
+        simulateDataUpdate();
     }
 
-    function simulateUpdate() {
-        const ttfΔ = (Math.random() - 0.5) * 0.3;
-        const storΔ = (Math.random() - 0.45) * 0.1;
+    function simulateDataUpdate() {
+        const ttfChange     = (Math.random() - 0.5) * 0.3;
+        const storageChange = (Math.random() - 0.45) * 0.1;
+        let currentTtfPrice = lastValues[liveTtfElement?.id] || 28.75;
 
-        lastVals['live-ttf-price']     = Math.max(10, lastVals['live-ttf-price'] + ttfΔ);
-        lastVals['ai-ttf-trend-value'] = lastVals['live-ttf-price'];
-        lastVals['live-volume']        = Math.max(500, lastVals['live-volume'] + Math.floor((Math.random()-0.5)*100));
-        lastVals['live-volatility']    = Math.max(0.1, lastVals['live-volatility'] + (Math.random()-0.5)*0.2);
-        lastVals['ai-volatility-value'] = lastVals['live-volatility'];
-        lastVals['live-uk-power']      = Math.max(5, lastVals['live-uk-power'] + (Math.random()-0.5)*2);
-        lastVals['live-fr-power']      = Math.max(5, lastVals['live-fr-power'] + (Math.random()-0.5)*2);
-        lastVals['live-de-power']      = Math.max(5, lastVals['live-de-power'] + (Math.random()-0.5)*4);
-        lastVals['live-it-power']      = Math.max(5, lastVals['live-it-power'] + (Math.random()-0.5)*2);
-        lastVals['eu-storage']         = Math.max(10, Math.min(99, lastVals['eu-storage'] + storΔ));
-        lastVals['ai-storage-value']   = lastVals['eu-storage'];
-        lastVals['ai-spread-value']    = Math.max(0, lastVals['live-de-power'] - lastVals['live-fr-power']);
+        allValueElements.forEach(el => {
+            if (!el) return;
 
-        if (Math.random() < 0.1) {
-            const s = ['Neutral','Slightly Bullish','Slightly Bearish','Bullish','Bearish'];
-            lastVals['live-sentiment'] = s[Math.floor(Math.random() * s.length)];
+            if (!lastValues.hasOwnProperty(el.id)) {
+                const text = el.textContent;
+                const num  = parseFloat(text.replace(/[€£%$,]/g, ''));
+                lastValues[el.id] = !isNaN(num) ? num : text;
+            }
+
+            let newValue  = 0;
+            let oldValue  = lastValues[el.id];
+            const prefix  = el.textContent.startsWith('€') ? '€' : el.textContent.startsWith('£') ? '£' : '';
+            const suffix  = el.textContent.endsWith('%') ? '%' : '';
+            const isNumeric = typeof oldValue === 'number';
+
+            try {
+                switch (el.id) {
+                    case 'live-ttf-price':
+                    case 'ai-ttf-trend-value':
+                        if (!isNumeric) oldValue = parseFloat(oldValue?.toString().replace(/[€£%,]/g, '')) || 28.75;
+                        newValue = Math.max(10, oldValue + ttfChange);
+                        el.textContent = prefix + newValue.toFixed(2);
+                        if (el.id === 'live-ttf-price') currentTtfPrice = newValue;
+                        break;
+                    case 'live-volume':
+                        if (!isNumeric) oldValue = parseInt(oldValue?.toString().replace(/,/g, '')) || 1250;
+                        newValue = Math.max(500, parseInt(oldValue) + Math.floor((Math.random() - 0.5) * 100));
+                        el.textContent = newValue.toLocaleString('en-GB');
+                        break;
+                    case 'live-volatility':
+                    case 'ai-volatility-value':
+                        if (!isNumeric) oldValue = parseFloat(oldValue?.toString().replace('%', '')) || 1.85;
+                        newValue = Math.max(0.1, oldValue + (Math.random() - 0.5) * 0.2);
+                        el.textContent = newValue.toFixed(2) + suffix;
+                        break;
+                    case 'live-uk-power':
+                    case 'live-fr-power':
+                    case 'live-it-power':
+                        if (!isNumeric) oldValue = parseFloat(oldValue?.toString().replace(/[€£%,]/g, '')) || 50;
+                        newValue = Math.max(5, oldValue + (Math.random() - 0.5) * 2.0);
+                        el.textContent = prefix + newValue.toFixed(2);
+                        break;
+                    case 'live-de-power':
+                        if (!isNumeric) oldValue = parseFloat(oldValue?.toString().replace(/[€£%,]/g, '')) || 60;
+                        newValue = Math.max(5, oldValue + (Math.random() - 0.5) * 4.0);
+                        el.textContent = prefix + newValue.toFixed(2);
+                        break;
+                    case 'eu-storage':
+                    case 'ai-storage-value':
+                        if (!isNumeric) oldValue = parseFloat(oldValue?.toString().replace('%', '')) || 65.2;
+                        newValue = Math.max(10, Math.min(99, oldValue + storageChange));
+                        el.textContent = newValue.toFixed(1) + suffix;
+                        break;
+                    case 'ai-spread-value': {
+                        const deVal = lastValues['live-de-power'] || 60;
+                        const frVal = lastValues['live-fr-power'] || 45;
+                        newValue = Math.max(0, deVal - frVal);
+                        el.textContent = '€' + newValue.toFixed(2);
+                        break;
+                    }
+                    default:
+                        newValue = oldValue;
+                        break;
+                }
+
+                if (typeof newValue === 'number' && !isNaN(newValue)) {
+                    lastValues[el.id] = newValue;
+                } else if (!isNumeric) {
+                    lastValues[el.id] = newValue;
+                }
+
+            } catch (err) {
+                console.error('Error updating element ' + el.id, err);
+            }
+
+            // Price direction flash class
+            if (priceElements.includes(el) && typeof oldValue === 'number' && typeof newValue === 'number') {
+                el.classList.remove('price-up', 'price-down', 'price-neutral');
+                if      (newValue > oldValue + 0.01) el.classList.add('price-up');
+                else if (newValue < oldValue - 0.01) el.classList.add('price-down');
+                else                                  el.classList.add('price-neutral');
+            }
+        });
+
+        // Market sentiment (random occasional update)
+        if (liveSentimentElement && Math.random() < 0.1) {
+            const sentiments = ['Neutral', 'Slightly Bullish', 'Slightly Bearish', 'Bullish', 'Bearish'];
+            const newSentiment = sentiments[Math.floor(Math.random() * sentiments.length)];
+            liveSentimentElement.textContent = newSentiment;
+            lastValues[liveSentimentElement.id] = newSentiment;
         }
-        lastVals['ai-confidence'] = Math.max(50, Math.min(95, lastVals['ai-confidence'] + (Math.random()-0.5)*3));
 
-        // Update DOM
-        const ttf = lastVals['live-ttf-price'];
-        const prevTtf = parseFloat(document.getElementById('live-ttf-price')?.textContent) || ttf;
-        setEl('live-ttf-price',     ttf.toFixed(2));
-        setEl('ai-ttf-trend-value', '€' + ttf.toFixed(2));
-        setEl('live-volume',        lastVals['live-volume'].toLocaleString('en-GB'));
-        setEl('live-volatility',    lastVals['live-volatility'].toFixed(2) + '%');
-        setEl('ai-volatility-value',lastVals['live-volatility'].toFixed(2) + '%');
-        setEl('live-sentiment',     lastVals['live-sentiment']);
-        setEl('live-uk-power',      lastVals['live-uk-power'].toFixed(2));
-        setEl('live-fr-power',      lastVals['live-fr-power'].toFixed(2));
-        setEl('live-de-power',      lastVals['live-de-power'].toFixed(2));
-        setEl('live-it-power',      lastVals['live-it-power'].toFixed(2));
-        setEl('eu-storage',         lastVals['eu-storage'].toFixed(1) + '%');
-        setEl('ai-storage-value',   lastVals['eu-storage'].toFixed(1) + '%');
-        setEl('ai-spread-value',    '€' + lastVals['ai-spread-value'].toFixed(2));
-
-        // KPI price direction
-        const kpiCard = document.getElementById('kpi-ttf-card');
-        if (kpiCard) {
-            kpiCard.classList.remove('kpi-up', 'kpi-down');
-            if (ttf > prevTtf + 0.01) kpiCard.classList.add('kpi-up');
-            else if (ttf < prevTtf - 0.01) kpiCard.classList.add('kpi-down');
+        // AI confidence bar
+        if (aiConfidenceBar && aiConfidenceValue) {
+            let currentConf = parseFloat(aiConfidenceValue.textContent.match(/(\d+)/)?.[0] ?? '85');
+            const vol = parseFloat(liveVolatilityElement?.textContent?.replace('%', '') ?? '0');
+            if (isNaN(currentConf)) currentConf = 85;
+            if (vol > 3.0 || Math.random() < 0.05) currentConf -= Math.random() * 5;
+            else if (Math.random() < 0.1)           currentConf += Math.random() * 3;
+            currentConf = Math.max(50, Math.min(95, currentConf));
+            const confLevel = currentConf > 80 ? 'High' : currentConf > 65 ? 'Medium' : 'Low';
+            aiConfidenceValue.textContent = `${confLevel} (${currentConf.toFixed(0)}%)`;
+            aiConfidenceBar.style.width = `${currentConf}%`;
         }
 
-        // AI tags
-        const ttfTag = document.getElementById('ai-ttf-tag');
-        if (ttfTag) { ttfTag.textContent = ttf > 32 ? 'Bullish' : ttf < 27 ? 'Bearish' : 'Neutral'; }
-        const storTag = document.getElementById('ai-storage-sentiment');
-        const sv = lastVals['eu-storage'];
-        if (storTag) { storTag.textContent = sv > 70 ? 'Bearish Driver' : sv < 50 ? 'Bullish Driver' : 'Neutral Driver'; }
+        // AI TTF tag
+        const ttfVal = lastValues[liveTtfElement?.id];
+        if (aiTtfTag && typeof ttfVal === 'number') {
+            aiTtfTag.textContent = ttfVal > 32 ? 'Bullish' : ttfVal < 27 ? 'Bearish' : 'Neutral';
+        }
 
-        // Confidence bar
-        const conf = lastVals['ai-confidence'];
-        const bar = document.getElementById('ai-confidence-bar');
-        const val = document.getElementById('ai-confidence-value');
-        if (bar) bar.style.width = conf + '%';
-        if (val) val.textContent = (conf > 80 ? 'High' : conf > 65 ? 'Medium' : 'Low') + ' (' + conf.toFixed(0) + '%)';
+        // AI storage sentiment tag
+        const storageVal = lastValues[euStorageElement?.id];
+        if (aiStorageSentiment && typeof storageVal === 'number') {
+            aiStorageSentiment.textContent = storageVal > 70 ? 'Bearish Driver' : storageVal < 50 ? 'Bullish Driver' : 'Neutral Driver';
+        }
 
         // Timestamps
-        const ts = getCurrentTimestamp();
-        setEl('last-updated-time', ts);
-        setEl('nav-timestamp',     'Updated ' + luxonDT.now().toFormat('HH:mm:ss'));
+        const currentTime = getCurrentTimestamp();
+        if (footerTimeElement) footerTimeElement.textContent = currentTime;
+        const navTs = document.getElementById('nav-timestamp');
+        if (navTs) navTs.textContent = 'Updated ' + luxonDT.now().toFormat('HH:mm:ss');
 
-        // Live ticker chart
-        if (liveChart) {
-            const now = luxonDT.now().toMillis();
-            liveChart.data.labels.push(now);
-            liveChart.data.datasets[0].data.push(parseFloat(ttf.toFixed(2)));
-            while (liveChart.data.labels.length > TICK_N) {
-                liveChart.data.labels.shift();
-                liveChart.data.datasets[0].data.shift();
+        // Flash update pulse on all value elements
+        allValueElements.forEach(el => {
+            if (el) {
+                el.classList.add('value-updating');
+                setTimeout(() => el.classList.remove('value-updating'), 150);
             }
-            liveChart.update('none');
+        });
+
+        // Push new point onto live ticker chart
+        if (liveTickerChart && liveTickerChart.data?.datasets?.[0]?.data) {
+            const nowMillis = luxonDT.now().toMillis();
+            liveTickerChart.data.labels.push(nowMillis);
+            liveTickerChart.data.datasets[0].data.push(parseFloat(currentTtfPrice.toFixed(2)));
+            while (liveTickerChart.data.labels.length > TICKER_POINTS) {
+                liveTickerChart.data.labels.shift();
+                liveTickerChart.data.datasets[0].data.shift();
+            }
+            if (liveTickerChart.data.labels.length > 0) {
+                liveTickerChart.options.scales.x.min = liveTickerChart.data.labels[0];
+                liveTickerChart.options.scales.x.max = nowMillis;
+            }
+            liveTickerChart.update('none');
         }
     }
 
-    simulateUpdate();
-    setInterval(simulateUpdate, 3000);
+    // Boot: initialise then start interval
+    initializeValues();
+    setInterval(simulateDataUpdate, 3000);
 
-    /* ── What-if ── */
-    document.getElementById('what-if-run')?.addEventListener('click', () => {
-        const v = parseFloat(document.getElementById('what-if-storage')?.value);
-        const el = document.getElementById('what-if-result');
-        if (!el) return;
-        if (isNaN(v) || v < 0 || v > 100) { el.textContent = 'Invalid % (0–100)'; el.style.color = '#8B2020'; return; }
-        const impact = v < 40 ? 'Strong Bullish Pressure' : v < 55 ? 'Slight Bullish Pressure' : v > 80 ? 'Strong Bearish Pressure' : v > 70 ? 'Slight Bearish Pressure' : 'Neutral';
-        const col = v < 55 ? '#1a6b35' : v > 70 ? '#8B2020' : 'var(--ink-mid)';
-        el.textContent = impact; el.style.color = col;
-    });
+    /* ── What-if simulator ── */
+    const whatIfButton = document.getElementById('what-if-run');
+    const whatIfInput  = document.getElementById('what-if-storage');
+    const whatIfResult = document.getElementById('what-if-result');
+    if (whatIfButton && whatIfInput && whatIfResult) {
+        whatIfButton.addEventListener('click', () => {
+            const simStorage = parseFloat(whatIfInput.value);
+            if (isNaN(simStorage) || simStorage < 0 || simStorage > 100) {
+                whatIfResult.textContent = 'Invalid % (0–100)';
+                whatIfResult.style.color = '#8B2020';
+                return;
+            }
+            let impact = 'Neutral';
+            let color  = 'var(--ink-mid)';
+            if      (simStorage < 40) { impact = 'Strong Bullish Pressure'; color = '#1a6b35'; }
+            else if (simStorage < 55) { impact = 'Slight Bullish Pressure';  color = '#1a6b35'; }
+            else if (simStorage > 80) { impact = 'Strong Bearish Pressure';  color = '#8B2020'; }
+            else if (simStorage > 70) { impact = 'Slight Bearish Pressure';  color = '#8B2020'; }
+            whatIfResult.textContent = 'Impact: ' + impact;
+            whatIfResult.style.color = color;
+        });
+    }
 
     /* ── AI date range ── */
-    document.getElementById('ai-date-range')?.addEventListener('change', () => {
-        const val = document.getElementById('ai-confidence-value');
-        if (val) val.textContent = 'Recalculating…';
-        setTimeout(simulateUpdate, 600);
-    });
+    const dateRangeSelect = document.getElementById('ai-date-range');
+    if (dateRangeSelect) {
+        dateRangeSelect.addEventListener('change', () => {
+            if (aiConfidenceValue) aiConfidenceValue.textContent = 'Recalculating…';
+            setTimeout(() => simulateDataUpdate(), 500);
+        });
+    }
 
-    /* ── Hamburger ── */
+    /* ── Hamburger dropdown ── */
     const hamburgerBtn = document.getElementById('hamburgerBtn');
     const dropdownMenu = document.getElementById('dropdownMenu');
     if (hamburgerBtn && dropdownMenu) {
@@ -1480,60 +1631,86 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     /* ── Chatbot ── */
-    const popup  = document.getElementById('chatbot-popup');
-    const body   = document.getElementById('chatbot-body');
-    const input  = document.getElementById('chatbot-input');
-    const send   = document.getElementById('chatbot-send');
-    const toggle = document.getElementById('toggle-chatbot');
-    const close  = document.getElementById('close-chatbot');
+    const chatbotPopup         = document.getElementById('chatbot-popup');
+    const toggleChatbotButton  = document.getElementById('toggle-chatbot');
+    const closeChatbotButton   = document.getElementById('close-chatbot');
+    const chatbotBody          = document.getElementById('chatbot-body');
+    const chatbotInput         = document.getElementById('chatbot-input');
+    const chatbotSendButton    = document.getElementById('chatbot-send');
 
-    function toggleChat() {
-        popup.style.display = popup.style.display === 'flex' ? 'none' : 'flex';
-        if (popup.style.display === 'flex') input?.focus();
+    function toggleChatbot() {
+        if (chatbotPopup.style.display === 'flex') {
+            chatbotPopup.style.display = 'none';
+            toggleChatbotButton.setAttribute('aria-expanded', 'false');
+        } else {
+            chatbotPopup.style.display = 'flex';
+            toggleChatbotButton.setAttribute('aria-expanded', 'true');
+            chatbotInput?.focus();
+        }
     }
-    toggle?.addEventListener('click', toggleChat);
-    close?.addEventListener('click', toggleChat);
 
-    function addMsg(text, type) {
+    function addChatMessage(message, type = 'ai') {
         const d = document.createElement('div');
-        d.className = 'chat-msg ' + type;
-        d.textContent = text;
-        body?.appendChild(d);
-        if (body) body.scrollTop = body.scrollHeight;
+        d.className = 'chat-msg ' + (type === 'user' ? 'usr' : 'ai');
+        d.textContent = message;
+        chatbotBody?.appendChild(d);
+        if (chatbotBody) chatbotBody.scrollTop = chatbotBody.scrollHeight;
     }
 
-    function handleInput() {
-        const txt = input?.value.trim();
-        if (!txt) return;
-        addMsg(txt, 'usr');
-        if (input) input.value = '';
-        const lo = txt.toLowerCase();
-        const price = lastVals['live-ttf-price'].toFixed(2);
-        const stor  = lastVals['eu-storage'].toFixed(1);
-        const vol   = lastVals['live-volatility'].toFixed(2);
-        const sent  = lastVals['live-sentiment'];
-        let resp = "I can help with TTF price, storage levels, volatility, or market sentiment. What would you like to know?";
-        if (lo.includes('ttf') || lo.includes('price') || lo.includes('gas'))
-            resp = `Current TTF is €${price}/MWh. Sentiment is ${sent}. Key drivers include weather forecasts and LNG arrivals.`;
-        else if (lo.includes('storage'))
-            resp = `EU gas storage is at ${stor}%. Healthy seasonal levels currently exert a mild bearish influence on prices.`;
-        else if (lo.includes('volatility') || lo.includes('risk'))
-            resp = `1-day TTF volatility is ${vol}%. Moderate risk. Watch for weather shifts or geopolitical supply news.`;
-        else if (lo.includes('bullish') || lo.includes('rising'))
-            resp = `Bullish drivers: colder weather, supply disruptions, lower renewable output. Current sentiment: ${sent}.`;
-        else if (lo.includes('bearish') || lo.includes('falling'))
-            resp = `Bearish drivers: high storage (${stor}%), strong renewables, mild temperatures. Current sentiment: ${sent}.`;
-        else if (lo.includes('news'))
-            resp = "Simulated news headlines are in the Energy Market News Feed section. Topics cover gas, renewables, policy, and weather.";
-        else if (lo.includes('hello') || lo.includes('hi'))
-            resp = "Hello. Ask me about TTF prices, storage levels, volatility, or market drivers.";
-        setTimeout(() => addMsg(resp, 'ai'), 500 + Math.random() * 400);
+    function handleUserInput() {
+        const userInput = chatbotInput?.value.trim();
+        if (!userInput) return;
+        addChatMessage(userInput, 'user');
+        chatbotInput.value = '';
+
+        const lowerInput        = userInput.toLowerCase();
+        const currentPriceNum   = lastValues[liveTtfElement?.id] ?? NaN;
+        const prevPriceNum      = lastValues['previous_ttf'] ?? currentPriceNum;
+        const currentStorageText= euStorageElement ? euStorageElement.textContent : 'N/A';
+        const currentVolText    = liveVolatilityElement ? liveVolatilityElement.textContent : 'N/A';
+        const currentSentText   = liveSentimentElement ? liveSentimentElement.textContent : 'Neutral';
+
+        let priceDirection = 'stable';
+        if (!isNaN(currentPriceNum) && !isNaN(prevPriceNum)) {
+            if      (currentPriceNum > prevPriceNum + 0.05) priceDirection = 'rising slightly';
+            else if (currentPriceNum < prevPriceNum - 0.05) priceDirection = 'falling slightly';
+        }
+
+        let aiResponse = "I'm processing that. Ask me about TTF price, storage levels, volatility, or recent market drivers (bullish or bearish factors) for a more specific analysis.";
+
+        if      (lowerInput.includes('ttf') || lowerInput.includes('price') || lowerInput.includes('gas'))
+            aiResponse = `The current TTF gas price is simulated at €${currentPriceNum.toFixed(2)}/MWh. The trend is ${priceDirection}. Key factors include weather patterns and LNG arrivals. Market sentiment: ${currentSentText}.`;
+        else if (lowerInput.includes('storage'))
+            aiResponse = `Simulated EU gas storage is at ${currentStorageText}. This is generally healthy for the season, providing a buffer against price shocks. Currently exerting a slight bearish pressure.`;
+        else if (lowerInput.includes('volatility') || lowerInput.includes('risk'))
+            aiResponse = `Simulated TTF 1-day volatility is around ${currentVolText}. This suggests moderate risk levels. Geopolitical events or significant weather changes could increase volatility.`;
+        else if (lowerInput.includes('bullish') || lowerInput.includes('rising') || lowerInput.includes('up'))
+            aiResponse = `Potential bullish drivers include colder weather forecasts, supply disruptions, or lower renewable energy output. AI sentiment: '${currentSentText}'.`;
+        else if (lowerInput.includes('bearish') || lowerInput.includes('falling') || lowerInput.includes('down'))
+            aiResponse = `Potential bearish drivers include high storage levels (${currentStorageText}), strong renewable generation forecasts, mild weather, or weak economic demand. AI sentiment: '${currentSentText}'.`;
+        else if (lowerInput.includes('hello') || lowerInput.includes('hi') || lowerInput.includes('help'))
+            aiResponse = "Hello! I can provide simulated insights on TTF price trends, storage levels, volatility, and market drivers. What are you interested in?";
+        else if (lowerInput.includes('news') || lowerInput.includes('headlines'))
+            aiResponse = "Simulated news headlines are in the Energy Market News Feed section, covering gas prices, renewables, policy, and weather.";
+
+        if (!isNaN(currentPriceNum)) lastValues['previous_ttf'] = currentPriceNum;
+
+        setTimeout(() => addChatMessage(aiResponse, 'ai'), 600 + Math.random() * 400);
     }
 
-    send?.addEventListener('click', handleInput);
-    input?.addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); handleInput(); } });
+    if (toggleChatbotButton) toggleChatbotButton.addEventListener('click', toggleChatbot);
+    if (closeChatbotButton)  closeChatbotButton.addEventListener('click', toggleChatbot);
+    if (chatbotSendButton)   chatbotSendButton.addEventListener('click', handleUserInput);
+    if (chatbotInput) chatbotInput.addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); handleUserInput(); } });
 
     /* ── Table row click ── */
-    document.querySelectorAll('.data-table tbody tr, table tbody tr').forEach(row => {
+    document.querySelectorAll('table tbody tr').forEach(row => {
         row.addEventListener('click', e => {
-            if (e.target.tagNam
+            if (e.target.tagName === 'A' || e.target.closest('a')) return;
+            const companyName = row.cells[0]?.textContent?.trim();
+            if (companyName) alert(`Details for ${companyName} would load here or link to a research page.`);
+        });
+    });
+
+}); // end DOMContentLoaded
+</script>
